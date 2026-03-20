@@ -9,6 +9,7 @@ Test: curl -X POST http://localhost:8000/chat -H 'Content-Type: application/json
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from api.auth import api_key_middleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, Session
@@ -27,10 +28,11 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],   # TODO: Restrict to Engine frontend domains in production
+    allow_origins=["*"],
     allow_methods=["*"],
     allow_headers=["*"],
 )
+app.middleware("http")(api_key_middleware)
 
 # ─── DB Session Dependency ────────────────────────────────────────────────────
 engine = create_engine(DB_URL)
