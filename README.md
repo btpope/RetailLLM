@@ -82,6 +82,10 @@ The agent has deep Walmart operational knowledge baked in:
 
 ---
 
+> 📖 **Full semantic layer reference**: See [`WALMART_SEMANTICS.md`](WALMART_SEMANTICS.md) for the complete documentation of all Walmart + CPG knowledge, benchmarks, thresholds, and interpretation rules baked into the system.
+
+---
+
 ## Local Setup
 
 **Prerequisites**: Python 3.11+, Node.js 20+ (for seeding)
