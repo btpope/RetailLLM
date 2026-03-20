@@ -1,5 +1,5 @@
 """
-RetailGPT — Pre-built Query Library (v2 — SQLite-compatible, anchor-date aware)
+TestGPT — Pre-built Query Library (v2 — SQLite-compatible, anchor-date aware)
 All queries are read-only. No INSERT, UPDATE, DELETE, DROP allowed.
 
 Key fix: uses MAX(week_ending_date) as anchor "today" rather than date('now'),
@@ -20,7 +20,7 @@ def _assert_readonly(sql: str):
     for kw in BLOCKED_KEYWORDS:
         if kw in upper:
             raise PermissionError(
-                f"RetailGPT safety: '{kw}' is not permitted. All queries must be read-only."
+                f"TestGPT safety: '{kw}' is not permitted. All queries must be read-only."
             )
 
 def run_raw_sql(session: Session, sql: str, params: dict = None) -> list[dict]:

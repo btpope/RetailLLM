@@ -1,4 +1,4 @@
-# RetailGPT — Open Questions & Assumptions
+# TestGPT — Open Questions & Assumptions
 
 Generated during initial scaffold. Needs product input before Step 1 implementation begins.
 
@@ -66,7 +66,7 @@ Generated during initial scaffold. Needs product input before Step 1 implementat
 
 1. **SQLite for prototype**: Swappable via `DB_URL` env var; ORM is DB-agnostic
 2. **Claude Sonnet** as default model; configurable in `config/settings.py`
-3. **Anthropic Python SDK** used for tool_use; `RetailGPTAgent` uses the standard messages API
+3. **Anthropic Python SDK** used for tool_use; `TestGPTAgent` uses the standard messages API
 4. **FastAPI** for the API layer; can swap to Express/Next.js API routes if Engine is Node-based
 5. **Top 8 US retailers** in synthetic data: Walmart, Target, Kroger, Costco, Amazon, CVS, Walgreens, Albertsons
 6. **Weekly grain** for sales data (CPG industry standard); sub-week not scoped for v1

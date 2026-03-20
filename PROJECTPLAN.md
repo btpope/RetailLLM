@@ -1,4 +1,4 @@
-# RetailGPT — Project Plan
+# TestGPT — Project Plan
 **Last Updated:** 2026-03-20  
 **Status:** Prototype — Step 1 in progress  
 **Repo:** btpope/RetailLLM
@@ -7,7 +7,7 @@
 
 ## What We're Building
 
-RetailGPT is an AI analyst agent embedded in **Engine**, DecisionFrame AI's CPG retail analytics platform. It replaces static dashboards with a conversational analyst that can answer any business question, surface issues proactively, and route them to the right person — all grounded in real data with full human-in-the-loop control.
+TestGPT is an AI analyst agent embedded in **Engine**, DecisionFrame AI's CPG retail analytics platform. It replaces static dashboards with a conversational analyst that can answer any business question, surface issues proactively, and route them to the right person — all grounded in real data with full human-in-the-loop control.
 
 **Primary model:** Anthropic Claude (claude-sonnet-4-6)  
 **Secondary model:** Gemini (image generation for infographics — P2, deferred)  
@@ -108,7 +108,7 @@ Implementation tasks:
 - [ ] Implement `get_kpi_card` metric aggregation (map metric name → column → aggregate)
 - [ ] Implement `generate_vega_chart` fully (all 6 chart types)
 - [ ] Implement `kpi_summary` handler in the agent
-- [ ] Wire RetailGPTAgent end-to-end: receive query → tools → narrative
+- [ ] Wire TestGPTAgent end-to-end: receive query → tools → narrative
 - [ ] Build `kpi_snapshot` materialized view query
 - [ ] Add KPI Registry metadata
 - [ ] End-to-end test: POST /chat → narrative + Vega spec returned
@@ -140,7 +140,7 @@ RetailLLM/
 ├── api/
 │   └── main.py                    ← FastAPI: POST /chat, POST /approve, GET /issues
 ├── agents/
-│   └── retailgpt_agent.py         ← Main tool loop orchestrator + HITL
+│   └── testgpt_agent.py         ← Main tool loop orchestrator + HITL
 ├── tools/
 │   ├── execute_sql.py             ← SQL tool (read-only enforced)
 │   ├── generate_vega_chart.py     ← Vega-Lite chart builder
@@ -150,7 +150,7 @@ RetailLLM/
 │   ├── schema.py                  ← SQLAlchemy ORM (5 tables)
 │   └── queries.py                 ← Pre-built read-only query library
 ├── prompts/
-│   ├── retailgpt_system_prompt.md ← Full Claude system prompt
+│   ├── testgpt_system_prompt.md ← Full Claude system prompt
 │   └── retailers/                 ← (planned) walmart.md, kroger.md, supply_chain.md
 ├── scripts/
 │   └── generate_synthetic_data.py ← Seeds SQLite with Jan 2023–Feb 2025 data
@@ -181,5 +181,5 @@ RetailLLM/
 See `OPEN_QUESTIONS.md` for the full list. Top priority:
 - **I1** Which cloud for production infrastructure?
 - **A1/A3** Auth model and multi-tenancy approach?
-- **D1** How does RetailGPT connect to live Engine warehouse?
+- **D1** How does TestGPT connect to live Engine warehouse?
 - **P1** Frontend: standalone SPA or embedded in Glass?

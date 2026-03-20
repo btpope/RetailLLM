@@ -1,5 +1,5 @@
 """
-RetailGPT Tool: generate_vega_chart
+TestGPT Tool: generate_vega_chart
 Builds a Vega-Lite JSON spec from tabular data and a chart type.
 Claude calls this after execute_sql returns rows.
 The frontend renders the spec using the Vega-Lite runtime.

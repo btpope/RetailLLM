@@ -3,8 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>RetailGPT — DecisionFrame AI</title>
+  <title>TestGPT — DecisionFrame AI</title>
   <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-lite@5"></script>
+  <script src="https://cdn.jsdelivr.net/npm/vega-embed@6"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
@@ -140,6 +143,14 @@
 
     /* Synthetic badge */
     .synthetic-note { font-size: 10px; color: var(--muted); text-align: right; margin-top: 6px; font-style: italic; }
+
+    /* Charts */
+    .chart-block { margin: 14px 0; background: var(--surface2); border: 1px solid var(--border);
+      border-radius: 10px; padding: 14px; }
+    .chart-caption { font-size: 12px; color: var(--muted); margin-top: 8px; font-style: italic; }
+    .chart-synth { font-size: 10px; color: var(--warn); margin-top: 4px; }
+    .vega-embed { background: transparent !important; }
+    .vega-embed canvas { border-radius: 6px; }
   </style>
 </head>
 <body>
@@ -206,7 +217,7 @@
           <textarea id="chatInput" rows="1" placeholder="Ask about your business…" onkeydown="handleKey(event)" oninput="autoResize(this)"></textarea>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">↑</button>
         </div>
-        <div class="input-hint">RetailGPT may produce errors — always verify numbers before presenting externally</div>
+        <div class="input-hint">TestGPT may produce errors — always verify numbers before presenting externally</div>
       </div>
     </div>
 
@@ -370,8 +381,46 @@
         sessionId = data.session_id || sessionId;
         const narrative = data.narrative || data.response || JSON.stringify(data, null, 2);
         const botDiv = appendMessage('bot', narrative, true);
-        botDiv.querySelector('.msg-bubble').insertAdjacentHTML('beforeend',
-          '<div class="synthetic-note">⚠️ SYNTHETIC DATA — DEMO ONLY</div>');
+
+        // Render Vega-Lite charts if present
+        const charts = data.charts || [];
+        if (charts.length > 0) {
+          const bubble = botDiv.querySelector('.msg-bubble');
+          for (let i = 0; i < charts.length; i++) {
+            const chart = charts[i];
+            const spec = chart.spec || chart;
+            if (!spec || !spec.mark) continue;
+
+            const chartId = `chart-${Date.now()}-${i}`;
+            const block = document.createElement('div');
+            block.className = 'chart-block';
+            block.innerHTML = `
+              <div id="${chartId}" style="width:100%;min-height:220px;"></div>
+              ${chart.caption ? `<div class="chart-caption">${chart.caption}</div>` : ''}
+              <div class="chart-synth">⚠️ SYNTHETIC DATA — DEMO ONLY</div>`;
+            bubble.appendChild(block);
+
+            // Apply dark theme to spec
+            const themedSpec = Object.assign({}, spec, {
+              background: 'transparent',
+              config: Object.assign({}, spec.config || {}, {
+                axis: { gridColor: '#2a2f42', labelColor: '#7b8299', titleColor: '#7b8299' },
+                legend: { labelColor: '#e8eaf0', titleColor: '#7b8299' },
+                title: { color: '#e8eaf0', fontSize: 13 },
+                view: { stroke: 'transparent' },
+              })
+            });
+
+            vegaEmbed(`#${chartId}`, themedSpec, {
+              actions: false,
+              theme: 'dark',
+              renderer: 'canvas',
+            }).catch(console.error);
+          }
+        } else {
+          botDiv.querySelector('.msg-bubble').insertAdjacentHTML('beforeend',
+            '<div class="synthetic-note">⚠️ SYNTHETIC DATA — DEMO ONLY</div>');
+        }
       }
     } catch (e) {
       typingEl.remove();

@@ -1,5 +1,5 @@
 """
-RetailGPT — Synthetic Data Generator
+TestGPT — Synthetic Data Generator
 Generates ~2 years of realistic CPG weekly data (Jan 2023 – Feb 2025).
 Seeds all 5 tables: sales_kpi_weekly, promo_calendar, retailer_account_scorecard,
                     kpi_alert_log, user_preferences.
@@ -8,7 +8,7 @@ Usage:
     python scripts/generate_synthetic_data.py
 
 Output:
-    retailgpt_prototype.db (SQLite) in project root
+    testgpt_prototype.db (SQLite) in project root
     Also writes CSVs to scripts/data/ for inspection
 
 All outputs labeled [SYNTHETIC DATA — DEMO ONLY]
@@ -522,7 +522,7 @@ def main():
     _write_csv(output_dir / "scorecards.csv", scorecards)
     _write_csv(output_dir / "alerts.csv", alerts)
     # Skip sales CSV — too large; use DB directly
-    print(f"  (Sales rows too large for CSV — query retailgpt_prototype.db directly)")
+    print(f"  (Sales rows too large for CSV — query testgpt_prototype.db directly)")
 
     print(f"""
 ✅ Synthetic data generation complete!

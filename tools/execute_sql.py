@@ -1,5 +1,5 @@
 """
-RetailGPT Tool: execute_sql
+TestGPT Tool: execute_sql
 Wraps the query library for Claude to call via tool use.
 Claude sends natural-language intent; this tool resolves it to a safe, pre-built query.
 """

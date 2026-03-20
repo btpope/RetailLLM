@@ -1,5 +1,5 @@
 """
-RetailGPT — Main Orchestration Agent (Step 1 Skeleton)
+TestGPT — Main Orchestration Agent (Step 1 Skeleton)
 Implements the core analyst loop: receive query → call tools → return narrative + charts.
 
 Architecture:
@@ -56,7 +56,7 @@ def load_system_prompt(user_context: dict) -> str:
     user_context keys: user_name, user_role, priority_metrics, retailer_scope,
                        region_scope, default_period, narrative_mode
     """
-    prompt_path = Path(__file__).parent.parent / "prompts" / "retailgpt_system_prompt.md"
+    prompt_path = Path(__file__).parent.parent / "prompts" / "testgpt_system_prompt.md"
     prompt = prompt_path.read_text()
 
     # Replace placeholders with actual user context
@@ -78,7 +78,7 @@ def load_system_prompt(user_context: dict) -> str:
     return prompt
 
 
-class RetailGPTAgent:
+class TestGPTAgent:
     """
     Main analyst agent. One instance per user session.
     Maintains conversation history for multi-turn support.
@@ -180,7 +180,7 @@ class RetailGPTAgent:
 
         # Safety: exceeded max iterations
         return AgentResponse(
-            narrative="RetailGPT reached the maximum analysis depth. Please try a more specific question.",
+            narrative="TestGPT reached the maximum analysis depth. Please try a more specific question.",
             charts=charts,
             issues=issues,
             pending_approval=None,
@@ -221,7 +221,7 @@ class RetailGPTAgent:
 
 
 class AgentResponse:
-    """Structured response from RetailGPTAgent.chat()"""
+    """Structured response from TestGPTAgent.chat()"""
 
     def __init__(self, narrative: str, charts: list, issues: list, pending_approval: dict | None):
         self.narrative = narrative

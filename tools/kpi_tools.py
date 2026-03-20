@@ -1,5 +1,5 @@
 """
-RetailGPT Tools: get_kpi_card, get_promo_calendar, get_retailer_account, search_memory
+TestGPT Tools: get_kpi_card, get_promo_calendar, get_retailer_account, search_memory
 All fully implemented for Step 1.
 """
 

@@ -1,125 +1,151 @@
-# RetailGPT
+# TestGPT — DecisionFrame AI (Prototype)
 
-AI analyst agent for CPG retail analytics — powered by Claude (Anthropic).
+AI analyst agent for CPG retail analytics. Ask questions about your business in plain English — get back KPI narratives, trend analysis, promo ROI, and visual charts.
 
-**Status:** Step 1 complete — end-to-end `/chat` working with real SQLite data.
-
----
-
-## Quickstart
-
-```bash
-# 1. Install deps
-pip install -r requirements.txt
-
-# 2. Seed the database
-node scripts/generate_synthetic_data.js
-# → creates retailgpt_prototype.db with 117,600 rows of Walmart/CPG data
-
-# 3. Configure
-cp .env.example .env
-# edit .env → add your ANTHROPIC_API_KEY
-
-# 4. Run
-uvicorn api.main:app --reload --port 8000
-```
+> ⚠️ **This is a prototype running on synthetic demo data only. All numbers are simulated.**
 
 ---
 
-## API Endpoints
+## Live Demo
 
-| Method | Path | Description |
-|--------|------|-------------|
-| `GET`  | `/health` | Status check |
-| `GET`  | `/users` | List test users |
-| `GET`  | `/summary/{user_id}` | Quick KPI summary (no Claude, data layer only) |
-| `POST` | `/chat` | Main analyst chat (Claude tool loop) |
-| `POST` | `/approve` | HITL approval gate |
-| `GET`  | `/issues` | Open alert queue for a user |
-| `DELETE` | `/sessions/{id}` | Clear conversation history |
+**URL**: `https://testgpt.srv1445355.hstgr.cloud`
+**Password**: `testgpt2026`
 
----
-
-## Test Calls
-
-```bash
-# Check data layer (no API key needed)
-curl http://localhost:8000/users
-curl http://localhost:8000/summary/USR-001
-curl http://localhost:8000/summary/USR-002?period_weeks=13
-
-# Full Claude agent call
-curl -X POST http://localhost:8000/chat \
-  -H 'Content-Type: application/json' \
-  -d '{"user_id": "USR-001", "message": "How is my business?"}'
-
-# Single metric drilldown
-curl -X POST http://localhost:8000/chat \
-  -H 'Content-Type: application/json' \
-  -d '{"user_id": "USR-001", "message": "What is OOS rate at Walmart for Apex this month?", "session_id": "USR-001"}'
-
-# Promo analysis
-curl -X POST http://localhost:8000/chat \
-  -H 'Content-Type: application/json' \
-  -d '{"user_id": "USR-002", "message": "Show me Walmart promo ROI for the last year"}'
-```
-
----
-
-## Users (prototype)
-
-| ID | Name | Role | Scope |
-|----|------|------|-------|
-| USR-001 | Sarah Johnson | Brand Manager | Walmart/Target/Kroger — Apex only |
-| USR-002 | Michael Chen | Sales Director | Walmart/Costco — Southeast+Midwest |
-| USR-003 | Rachel Thompson | Category Manager | Kroger/Albertsons/CVS — Bolt+Silke |
-| USR-004 | James Williams | Retail Ops VP | All retailers — all brands |
-| USR-005 | Emily Davis | Analyst | All retailers — Apex only |
+Pick a user from the dropdown (e.g. Sarah Johnson = Apex Brand Manager at Walmart/Target/Kroger), then ask questions like:
+- "How is my business?"
+- "How did my last promotion perform?"
+- "Show me revenue YoY as a chart"
+- "Which SKUs have the highest out-of-stock rate?"
 
 ---
 
 ## Architecture
 
 ```
-POST /chat
-  → _resolve_user_context (load prefs from user_preferences)
-  → RetailGPTAgent.chat()
-      → Claude (claude-sonnet-4-6) tool loop
-          → search_memory        load user prefs
-          → get_business_summary L4W KPI cards, ranked by change
-          → get_kpi_card         single-metric current vs. prior
-          → execute_sql          flexible read-only queries
-          → generate_vega_chart  Vega-Lite spec for frontend
-          → get_promo_calendar   promo events + ROI
-          → get_retailer_account quarterly scorecard (JBP)
-          → flag_issue           surface anomaly for review
-          → send_for_approval    HITL gate (halts loop)
-  → AgentResponse { narrative, charts[], issues[], pending_approval }
+Browser (Chat UI)
+    ↓ POST /chat
+FastAPI (api/main.py)
+    ↓
+RetailGPTAgent (agents/retailgpt_agent.py)
+    ↓ tool calls
+    ├── get_kpi_card      → KPI aggregation (models/queries.py)
+    ├── execute_sql        → read-only SQL (models/queries.py)
+    ├── get_business_summary → top KPIs + alerts
+    ├── generate_vega_chart → Vega-Lite chart specs
+    ├── get_promo_calendar → promo schedule
+    ├── get_retailer_account → account scorecard
+    └── search_memory      → session context
+    ↓
+Narrative + Vega-Lite charts
+    ↓
+Browser renders charts via vega-embed
 ```
 
-### Data
-
-- **DB:** SQLite `retailgpt_prototype.db` (117,600 rows, Jan 2023 – Feb 2025)
-- **Brands:** Apex (Snacks), Bolt (Energy Drinks), Silke (Hair Care)
-- **Retailers:** Walmart, Target, Kroger, Costco, Amazon, CVS, Walgreens, Albertsons
-- **Calibration:** Velocity/price/promo lift/ROI ranges from Brad Pope / Perplexity spec 2026-03-20
-
-### Production path
-
-- Swap `DB_URL` for Databricks SQL connector
-- Set `ANALYST_PROVIDER=openai` + `OPENAI_API_KEY=dapi...` for Azure AI Foundry (Claude via Databricks AI Gateway)
-- Port API to C#/.NET to match Engine team stack
+**Prototype stack**: Python 3.11 · FastAPI · SQLite · Anthropic Claude claude-sonnet-4-6 · Vega-Lite
+**Production stack** (planned): C#/.NET · Databricks Delta Lake · Azure AI Foundry (OpenAI-compatible) · Engine integration
 
 ---
 
-## Step Roadmap
+## Local Setup
 
-| Step | Requirements | Status |
-|------|-------------|--------|
-| Step 1 | #1,#2,#3,#4,#10,#11 — core analytics + tool loop | ✅ Done |
-| Step 2 | #5,#6,#7,#9 — reactive agents, issue workflow, per-user priorities | 🔲 Next |
-| Step 3 | #8 — Gemini infographic image generation | 🔲 P2 |
+**Prerequisites**: Python 3.11+, Node.js 20+ (for seeding)
+
+```bash
+git clone https://github.com/btpope/RetailLLM.git
+cd RetailLLM
+
+# Install Python deps
+pip install -r requirements.txt
+
+# Seed the SQLite DB (117,600 rows of synthetic data)
+npm install
+npm run seed
+
+# Configure
+cp .env.example .env
+# Edit .env — add ANTHROPIC_API_KEY
+
+# Start
+uvicorn api.main:app --reload --port 8000
+```
+
+Open `http://localhost:8000` — no password needed (TESTGPT_API_KEY empty = open in dev mode).
 
 ---
 
-*[SYNTHETIC DATA — DEMO ONLY]*
+## API Reference
+
+All endpoints require `?api_key=<key>` or `X-API-Key` header (except `/health`, `/`, `/docs`).
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/` | GET | Chat UI |
+| `/health` | GET | Health check |
+| `/chat` | POST | Main agent endpoint |
+| `/summary/{user_id}` | GET | KPI cards for user |
+| `/users` | GET | List test users |
+| `/docs` | GET | Swagger UI |
+
+**POST /chat**
+```json
+{
+  "user_id": "USR-001",
+  "message": "How is my business?",
+  "session_id": null
+}
+```
+
+Response:
+```json
+{
+  "session_id": "USR-001",
+  "narrative": "Here's your business summary...",
+  "charts": [ /* Vega-Lite spec objects */ ],
+  "issues": [],
+  "pending_approval": null
+}
+```
+
+---
+
+## Synthetic Data
+
+| Table | Rows | Description |
+|-------|------|-------------|
+| `sales_kpi_weekly` | 117,600 | Weekly sales by SKU × retailer × region, Jan 2023–Feb 2025 |
+| `promo_calendar` | 234 | Promo events with lift, ROI, type |
+| `retailer_account_scorecard` | 189 | Quarterly scorecards |
+| `kpi_alert_log` | 120 | Open KPI alerts |
+| `user_preferences` | 5 | Test users |
+
+**Brands**: Apex (Salty Snacks), Bolt (Energy Drinks), Silke (Hair Care)
+**Retailers**: Walmart, Target, Kroger, Costco, Publix, Safeway, HEB
+
+Regenerate: `npm run seed` (deterministic, seed=42)
+
+---
+
+## Test Users
+
+| User ID | Name | Role | Brand | Retailers | Period |
+|---------|------|------|-------|-----------|--------|
+| USR-001 | Sarah Johnson | Brand Manager | Apex | Walmart, Target, Kroger | L4W |
+| USR-002 | Michael Chen | Sales Director | All | Walmart, Costco | L13W |
+| USR-003 | Rachel Thompson | Category Analyst | Bolt | Walmart, Target, Kroger | L4W |
+| USR-004 | David Park | Account Manager | Silke | Walmart, Costco, Kroger | L4W |
+| USR-005 | Jennifer Walsh | VP Sales | All | All retailers | YTD |
+
+---
+
+## Deployment (BigB VPS)
+
+Source: `/root/testgpt/` on `31.97.210.170`
+Docker compose: `/docker/n8n/docker-compose.yml` (service: `testgpt`)
+Traefik: auto-TLS via Let's Encrypt
+
+**Redeploy after code changes**:
+```bash
+sudo git -C /root/testgpt pull <repo-url> master
+cd /docker/n8n && sudo docker compose build --no-cache testgpt
+sudo docker compose up -d testgpt
+```

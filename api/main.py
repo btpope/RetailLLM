@@ -1,6 +1,6 @@
 """
-RetailGPT — FastAPI Endpoint (Step 1)
-Accepts a user query, calls RetailGPTAgent, returns narrative + Vega specs + issues.
+TestGPT — FastAPI Endpoint (Step 1)
+Accepts a user query, calls TestGPTAgent, returns narrative + Vega specs + issues.
 
 Run:  uvicorn api.main:app --reload --port 8000
 Test: curl -X POST http://localhost:8000/chat -H 'Content-Type: application/json' \
@@ -22,12 +22,12 @@ from sqlalchemy.orm import sessionmaker, Session
 from typing import Optional
 
 from config.settings import DB_URL, SYNTHETIC_DATA_MODE
-from agents.retailgpt_agent import RetailGPTAgent
+from agents.testgpt_agent import TestGPTAgent
 from tools.kpi_tools import search_memory
 
 # ─── App Setup ────────────────────────────────────────────────────────────────
 app = FastAPI(
-    title="RetailGPT API",
+    title="TestGPT API",
     description="AI analyst agent for CPG retail analytics — powered by Claude",
     version="0.1.0-prototype",
 )
@@ -62,7 +62,7 @@ def get_db():
 
 # ─── In-memory session store (prototype only) ─────────────────────────────────
 # TODO: Replace with Redis or DB-backed session store
-_agent_sessions: dict[str, RetailGPTAgent] = {}
+_agent_sessions: dict[str, TestGPTAgent] = {}
 
 
 # ─── Request / Response Models ────────────────────────────────────────────────
@@ -105,7 +105,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
     Steps:
     1. Resolve or create agent session for this user
     2. Load user preferences from DB (shapes narrative mode and default summary)
-    3. Run RetailGPTAgent.chat()
+    3. Run TestGPTAgent.chat()
     4. Return narrative + charts + issues + any pending HITL gate
     """
     # TODO: Validate user_id against auth system (JWT/session token)
@@ -116,7 +116,7 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
     # Resolve or create agent session
     if session_key not in _agent_sessions:
         user_ctx = _resolve_user_context(db, req.user_id)
-        _agent_sessions[session_key] = RetailGPTAgent(session=db, user_context=user_ctx)
+        _agent_sessions[session_key] = TestGPTAgent(session=db, user_context=user_ctx)
 
     agent = _agent_sessions[session_key]
 

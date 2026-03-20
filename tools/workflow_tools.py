@@ -1,5 +1,5 @@
 """
-RetailGPT Tools: flag_issue, send_for_approval, generate_infographic_image
+TestGPT Tools: flag_issue, send_for_approval, generate_infographic_image
 All write-adjacent actions route through HITL approval gates.
 No action executes without explicit user confirmation.
 """
@@ -164,7 +164,7 @@ def generate_infographic_image(headline_number: str, supporting_stats: list[str]
             "headline": headline_number,
             "stats": supporting_stats,
             "narrative": narrative,
-            "source": source_note or f"Engine RetailGPT{label}",
+            "source": source_note or f"Engine TestGPT{label}",
             "style": style,
         },
     }

@@ -1,5 +1,5 @@
 """
-RetailGPT — Configuration
+TestGPT — Configuration
 All model/provider keys and endpoints live here.
 Switching the base model = change ANALYST_MODEL. The agent graph is model-agnostic.
 """
@@ -25,7 +25,7 @@ INFOGRAPHIC_ENDPOINT = os.getenv(
 
 # ─── Database ─────────────────────────────────────────────────────────────────
 # TODO: Replace with real Engine warehouse connection string
-DB_URL = os.getenv("DB_URL", "sqlite:///./retailgpt_prototype.db")  # SQLite for prototype
+DB_URL = os.getenv("DB_URL", "sqlite:///./testgpt_prototype.db")  # SQLite for prototype
 
 # ─── Safety ───────────────────────────────────────────────────────────────────
 READONLY_ENFORCED = True   # Never set to False in production

@@ -1,5 +1,5 @@
 """
-RetailGPT — Database Schema (SQLAlchemy ORM)
+TestGPT — Database Schema (SQLAlchemy ORM)
 Matches the Synthetic Data Schema sheet exactly.
 Run `python models/schema.py` to create tables in the prototype DB.
 """
@@ -127,4 +127,4 @@ class UserPreferences(Base):
 if __name__ == "__main__":
     engine = create_engine(DB_URL, echo=True)
     Base.metadata.create_all(engine)
-    print("✅ All RetailGPT tables created.")
+    print("✅ All TestGPT tables created.")

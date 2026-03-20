@@ -1,7 +1,7 @@
 {
-  "name": "retailgpt-seeder",
+  "name": "testgpt-seeder",
   "version": "1.0.0",
-  "description": "SQLite data seeder for RetailGPT prototype DB",
+  "description": "SQLite data seeder for TestGPT prototype DB",
   "scripts": {
     "seed": "node scripts/generate_synthetic_data.js"
   },
