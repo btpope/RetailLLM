@@ -75,6 +75,15 @@
       color: var(--muted); font-size: 12px; padding: 9px 11px; cursor: pointer; text-align: left;
       transition: all .15s; line-height: 1.4; width: 100%; }
     .starter:hover { border-color: var(--accent); color: var(--text); background: rgba(79,142,247,.06); }
+    .sidebar-divider { border: none; border-top: 1px solid var(--border); margin: 8px 0; }
+    .history-item { background: transparent; border: 1px solid transparent; border-radius: 8px;
+      color: var(--muted); font-size: 12px; padding: 7px 10px; cursor: pointer; text-align: left;
+      transition: all .15s; line-height: 1.3; width: 100%; display: flex; flex-direction: column; gap: 2px; }
+    .history-item:hover { border-color: var(--border); color: var(--text); background: rgba(255,255,255,.03); }
+    .history-item.active { border-color: var(--accent); color: var(--text); background: rgba(79,142,247,.08); }
+    .history-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
+    .history-time  { font-size: 10px; color: var(--muted); opacity: .7; }
+    .history-empty { font-size: 11px; color: var(--muted); opacity: .5; padding: 4px 8px; font-style: italic; }
 
     /* Chat area */
     .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -201,6 +210,10 @@
       <button class="starter" onclick="sendStarter('How does my velocity trend over the last 13 weeks?')">📉 13-week velocity trend</button>
       <button class="starter" onclick="sendStarter('Compare my performance at Walmart vs other retailers')">🔄 Walmart vs other retailers</button>
       <button class="starter" onclick="sendStarter('Which of my SKUs have the highest out-of-stock rate?')">⚠️ Out-of-stock risk</button>
+
+      <hr class="sidebar-divider" style="margin-top:12px">
+      <div class="sidebar-label">Recent</div>
+      <div id="historyList"><div class="history-empty">No chats yet</div></div>
     </div>
 
     <!-- Chat -->
@@ -258,6 +271,7 @@
     document.getElementById('loginScreen').style.display = 'none';
     const app = document.getElementById('appShell');
     app.style.display = 'flex';
+    renderHistory();
     document.getElementById('chatInput').focus();
   }
 
@@ -266,6 +280,96 @@
     const saved = sessionStorage.getItem('rgpt_key');
     if (saved) { apiKey = saved; showApp(); }
   });
+
+  // ── Conversation History ─────────────────────────────────────────────────────
+  const HISTORY_KEY = 'tgpt_history';
+  const MAX_HISTORY = 30;
+  let activeConvId = null;
+
+  function loadHistory() {
+    try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+    catch { return []; }
+  }
+
+  function saveHistory(convs) {
+    localStorage.setItem(HISTORY_KEY, JSON.stringify(convs.slice(0, MAX_HISTORY)));
+  }
+
+  function timeLabel(ts) {
+    const now  = Date.now();
+    const diff = now - ts;
+    if (diff < 60000)      return 'just now';
+    if (diff < 3600000)    return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000)   return Math.floor(diff / 3600000) + 'h ago';
+    if (diff < 172800000)  return 'yesterday';
+    return new Date(ts).toLocaleDateString([], { month: 'short', day: 'numeric' });
+  }
+
+  function renderHistory() {
+    const list = document.getElementById('historyList');
+    const convs = loadHistory();
+    if (!convs.length) {
+      list.innerHTML = '<div class="history-empty">No chats yet</div>';
+      return;
+    }
+    list.innerHTML = convs.map(c => `
+      <button class="history-item ${c.id === activeConvId ? 'active' : ''}"
+              onclick="restoreConv('${c.id}')" title="${c.title}">
+        <span class="history-title">${c.title}</span>
+        <span class="history-time">${timeLabel(c.updatedAt || c.createdAt)}</span>
+      </button>`).join('');
+  }
+
+  function startConv(firstMessage) {
+    activeConvId = 'conv-' + Date.now();
+    const convs = loadHistory();
+    convs.unshift({
+      id: activeConvId,
+      title: firstMessage.length > 48 ? firstMessage.slice(0, 48) + '…' : firstMessage,
+      userId: currentUserId(),
+      createdAt: Date.now(),
+      updatedAt: Date.now(),
+      messages: [],
+    });
+    saveHistory(convs);
+    renderHistory();
+  }
+
+  function appendToConv(role, text) {
+    if (!activeConvId) return;
+    const convs = loadHistory();
+    const conv  = convs.find(c => c.id === activeConvId);
+    if (!conv) return;
+    conv.messages.push({ role, text, ts: Date.now() });
+    conv.updatedAt = Date.now();
+    saveHistory(convs);
+  }
+
+  function restoreConv(id) {
+    const convs = loadHistory();
+    const conv  = convs.find(c => c.id === id);
+    if (!conv) return;
+
+    activeConvId = id;
+    sessionId    = null;
+
+    // Clear + restore user selector
+    const sel = document.getElementById('userSelect');
+    if (conv.userId) sel.value = conv.userId;
+
+    // Rebuild message thread
+    const msgs = document.getElementById('messages');
+    msgs.innerHTML = '';
+
+    for (const m of conv.messages) {
+      appendMessage(m.role, m.text, m.role === 'bot');
+    }
+
+    renderHistory();
+    document.getElementById('chatInput').focus();
+  }
+
+  window.restoreConv = restoreConv;
 
   // ── Walmart Spark icon (SVG) ─────────────────────────────────────────────────
   const SPARK_SVG = `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg" width="18" height="18" style="display:block">
@@ -290,13 +394,15 @@
   }
 
   function newChat() {
-    sessionId = null;
+    sessionId    = null;
+    activeConvId = null;
     document.getElementById('messages').innerHTML = `
       <div class="empty-state" id="emptyState">
         <div class="empty-icon">📦</div>
         <div class="empty-title">Ready when you are.</div>
         <div class="empty-sub">Ask anything about your retail performance — velocity, promos, OOS, competitive trends, and more.</div>
       </div>`;
+    renderHistory();
   }
 
   function sendStarter(text) {
@@ -366,7 +472,9 @@
     document.getElementById('sendBtn').disabled = true;
     isWaiting = true;
 
+    if (!activeConvId) startConv(text);
     appendMessage('user', text);
+    appendToConv('user', text);
     const typingEl = appendTyping();
 
     try {
@@ -392,6 +500,7 @@
         const data = await res.json();
         sessionId = data.session_id || sessionId;
         const narrative = data.narrative || data.response || JSON.stringify(data, null, 2);
+        appendToConv('bot', narrative);
         const botDiv = appendMessage('bot', narrative, true);
 
         // Render Vega-Lite charts if present
