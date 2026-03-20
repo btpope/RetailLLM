@@ -111,12 +111,30 @@ def _build_spec(chart_type, data, x_field, y_field, color_field, title, x_label,
     y_axis = {"field": y_field, "title": y_label or y_field, "type": "quantitative"}
 
     if chart_type == "line":
-        # Time-series trend
-        x_axis["type"] = "temporal"
-        encoding = {"x": x_axis, "y": y_axis}
+        # Detect x-axis type: temporal if values look like dates, else ordinal
+        sample_x = [row.get(x_field) for row in data if row.get(x_field) is not None][:5]
+        def _looks_temporal(vals):
+            import re
+            date_pat = re.compile(r'^\d{4}-\d{2}-\d{2}')
+            return all(date_pat.match(str(v)) for v in vals) if vals else True
+        x_axis["type"] = "temporal" if _looks_temporal(sample_x) else "ordinal"
+        encoding = {
+            "x": x_axis,
+            "y": y_axis,
+            "tooltip": [
+                {"field": x_field, "title": x_label or x_field},
+                {"field": y_field, "title": y_label or y_field, "type": "quantitative"},
+            ],
+        }
         if color_field:
-            encoding["color"] = {"field": color_field, "type": "nominal"}
-        base.update({"mark": {"type": "line", "point": True}, "encoding": encoding})
+            encoding["color"] = {"field": color_field, "type": "nominal", "legend": {"title": color_field}}
+            encoding["tooltip"].append({"field": color_field, "title": color_field})
+        base.update({
+            "mark": {"type": "line", "point": True, "interpolate": "monotone"},
+            "encoding": encoding,
+        })
+        if color_field:
+            base["height"] = 320
 
     elif chart_type in ("bar", "horizontal_bar"):
         # Category comparison

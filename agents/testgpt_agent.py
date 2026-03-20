@@ -102,10 +102,30 @@ class TestGPTAgent:
         self.user_context = user_context
         self.system_prompt = load_system_prompt(user_context)
         self.conversation_history: list[dict] = []
+        self._first_turn = True         # used to gate the one-time data brief injection
+        self._turn_count = 0            # tracks total turns for trimming
 
         # TODO: Restore prior conversation history from search_memory
         # TODO: Initialize Anthropic client from provider factory (for model-switching)
         self.client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
+
+    # ── History management ────────────────────────────────────────────────────
+    _MAX_HISTORY_PAIRS = 12   # keep last 12 user+assistant exchange pairs (24 messages)
+    _TRIM_TO_PAIRS     = 8    # after trimming, keep 8 pairs (16 messages)
+
+    def _trim_history(self):
+        """Keep conversation history within token-safe bounds.
+        Never trims the first 2 messages (data brief + ack).
+        """
+        # Count only role=user/assistant messages (not tool_result blobs)
+        # Preserve first 2 (brief + ack) + last N pairs
+        if len(self.conversation_history) <= self._MAX_HISTORY_PAIRS * 2 + 2:
+            return
+        preserved = self.conversation_history[:2]   # brief + ack
+        rest = self.conversation_history[2:]
+        # Keep last _TRIM_TO_PAIRS * 2 messages
+        rest = rest[-(self._TRIM_TO_PAIRS * 2):]
+        self.conversation_history = preserved + rest
 
     def chat(self, user_message: str) -> "AgentResponse":
         """
@@ -117,9 +137,16 @@ class TestGPTAgent:
           - issues: list of flagged issues
           - pending_approval: HITL approval request (if any — pauses further action)
         """
+        self._turn_count += 1
+        self._trim_history()
+
         # ── Speed optimisation: pre-fetch & inject business context ─────────
-        # Eliminates 2 Claude API round-trips (search_memory + get_business_summary)
-        # by injecting a pre-computed data brief before the first LLM call.
+        # Inject ONCE on the first turn only. Subsequent turns use accumulated history.
+        if not self._first_turn:
+            self.conversation_history.append({"role": "user", "content": user_message})
+            return self._run_tool_loop(charts=[], issues=[], pending_approval=None)
+
+        self._first_turn = False
         try:
             from tools.kpi_tools import get_business_summary
             brief = get_business_summary(
@@ -161,13 +188,17 @@ class TestGPTAgent:
         except Exception:
             pass  # pre-fetch failure is non-fatal; Claude will call tools normally
 
-        # Append user message to history
+        # Append user message then hand off to shared tool loop
         self.conversation_history.append({"role": "user", "content": user_message})
+        return self._run_tool_loop(charts=[], issues=[], pending_approval=None)
 
-        charts: list[dict] = []
-        issues: list[dict] = []
-        pending_approval: dict | None = None
-
+    def _run_tool_loop(
+        self,
+        charts: list[dict],
+        issues: list[dict],
+        pending_approval: dict | None,
+    ) -> "AgentResponse":
+        """Run the Claude tool loop on the current conversation history."""
         # ── Tool loop ────────────────────────────────────────────────────────
         for iteration in range(MAX_TOOL_ITERATIONS):
 

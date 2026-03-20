@@ -84,6 +84,12 @@
     .history-title { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-size: 12px; }
     .history-time  { font-size: 10px; color: var(--muted); opacity: .7; }
     .history-empty { font-size: 11px; color: var(--muted); opacity: .5; padding: 4px 8px; font-style: italic; }
+    .alert-item { display:flex; gap:6px; align-items:flex-start; padding:4px 2px; border-bottom:1px solid var(--border); }
+    .alert-item:last-child { border-bottom:none; }
+    .alert-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-top:3px; }
+    .alert-dot.high { background:#ef4444; } .alert-dot.medium { background:#f59e0b; } .alert-dot.low { background:#6b7280; }
+    .alert-text { color:var(--muted); line-height:1.4; cursor:pointer; }
+    .alert-text:hover { color:var(--text); }
 
     /* Chat area */
     .chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
@@ -212,6 +218,13 @@
       <button class="starter" onclick="sendStarter('Which of my SKUs have the highest out-of-stock rate?')">⚠️ Out-of-stock risk</button>
 
       <hr class="sidebar-divider" style="margin-top:12px">
+      <div class="sidebar-label" style="display:flex;align-items:center;justify-content:space-between">
+        <span>Open Alerts</span>
+        <span id="alertBadge" style="display:none;background:#ef4444;color:#fff;border-radius:10px;padding:0 6px;font-size:10px;font-weight:700"></span>
+      </div>
+      <div id="alertsList" style="font-size:11px;color:var(--muted)">Loading...</div>
+
+      <hr class="sidebar-divider" style="margin-top:12px">
       <div class="sidebar-label">Recent</div>
       <div id="historyList"><div class="history-empty">No chats yet</div></div>
     </div>
@@ -272,6 +285,7 @@
     const app = document.getElementById('appShell');
     app.style.display = 'flex';
     renderHistory();
+    loadAlerts();
     document.getElementById('chatInput').focus();
   }
 
@@ -285,6 +299,31 @@
   const HISTORY_KEY = 'tgpt_history';
   const MAX_HISTORY = 30;
   let activeConvId = null;
+
+  // ── Alerts Panel ────────────────────────────────────────────────────────
+  async function loadAlerts() {
+    const el = document.getElementById('alertsList');
+    const badge = document.getElementById('alertBadge');
+    const userId = currentUserId();
+    if (!el || !userId || !apiKey) { el && (el.textContent = ''); return; }
+    try {
+      const res = await fetch(`${BASE}/issues?user_id=${encodeURIComponent(userId)}&api_key=${encodeURIComponent(apiKey)}`);
+      if (!res.ok) { el.textContent = ''; return; }
+      const data = await res.json();
+      const alerts = (data.issues || []).slice(0, 5);
+      if (!alerts.length) { el.innerHTML = '<div style="font-size:11px;color:var(--muted);opacity:.5;padding:2px 4px;font-style:italic">No open alerts</div>'; badge.style.display='none'; return; }
+      badge.textContent = alerts.length;
+      badge.style.display = 'inline';
+      el.innerHTML = alerts.map(a => {
+        const sev = (a.severity || 'low').toLowerCase();
+        const msg = (a.alert_message || a.message || '').substring(0, 72);
+        return `<div class="alert-item" title="${a.alert_message || ''}" onclick="sendStarter('Tell me about this alert: ${(a.alert_message||'').replace(/'/g,'')}')">
+          <div class="alert-dot ${sev}"></div>
+          <div class="alert-text">${msg}${msg.length===72?'…':''}</div>
+        </div>`;
+      }).join('');
+    } catch { el.textContent = ''; }
+  }
 
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
@@ -390,6 +429,7 @@
 
   function onUserChange() {
     newChat();
+    loadAlerts();
     document.getElementById('chatInput').focus();
   }
 
