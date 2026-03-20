@@ -1,0 +1,15 @@
+# RetailGPT — Python dependencies
+anthropic>=0.40.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+sqlalchemy>=2.0.0
+pydantic>=2.0.0
+
+# Prototype data generation
+# (no extra deps needed — uses stdlib only)
+
+# Production (uncomment when ready)
+# databricks-sql-connector>=3.0.0
+# databricks-sdk>=0.20.0
+# openai>=1.0.0   # for Azure AI Foundry / Databricks AI Gateway (OpenAI-compatible)
+# redis>=5.0.0
