@@ -9,6 +9,9 @@ Test: curl -X POST http://localhost:8000/chat -H 'Content-Type: application/json
 
 from fastapi import FastAPI, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from pathlib import Path
 from api.auth import api_key_middleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine
@@ -33,6 +36,15 @@ app.add_middleware(
     allow_headers=["*"],
 )
 app.middleware("http")(api_key_middleware)
+
+# Serve chat UI
+_public = Path(__file__).parent.parent / "public"
+if _public.exists():
+    app.mount("/static", StaticFiles(directory=str(_public)), name="static")
+
+@app.get("/")
+def root():
+    return FileResponse(str(_public / "index.html"))
 
 # ─── DB Session Dependency ────────────────────────────────────────────────────
 engine = create_engine(DB_URL)

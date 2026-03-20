@@ -9,11 +9,12 @@ from fastapi import Request
 from fastapi.responses import JSONResponse
 
 RETAILGPT_API_KEY = os.getenv("RETAILGPT_API_KEY", "")
-EXEMPT_PATHS = {"/health", "/docs", "/openapi.json", "/redoc"}
+EXEMPT_PATHS = {"/health", "/docs", "/openapi.json", "/redoc", "/"}
+EXEMPT_PREFIXES = ("/static/",)
 
 
 async def api_key_middleware(request: Request, call_next):
-    if request.url.path in EXEMPT_PATHS:
+    if request.url.path in EXEMPT_PATHS or any(request.url.path.startswith(p) for p in EXEMPT_PREFIXES):
         return await call_next(request)
 
     if not RETAILGPT_API_KEY:
