@@ -120,20 +120,43 @@ def _build_spec(chart_type, data, x_field, y_field, color_field, title, x_label,
 
     elif chart_type in ("bar", "horizontal_bar"):
         # Category comparison
-        # Auto-promote to horizontal when labels will be long (SKU names, retailer+SKU combos, >5 items)
-        x_axis["type"] = "nominal"
-        avg_label_len = sum(len(str(row.get(x_field, ""))) for row in data) / max(len(data), 1)
+        # Auto-detect which field is categorical vs numeric — don't trust Claude's x/y order
+        def _is_numeric(field):
+            vals = [row.get(field) for row in data if row.get(field) is not None]
+            if not vals:
+                return False
+            try:
+                [float(v) for v in vals]
+                return True
+            except (TypeError, ValueError):
+                return False
+
+        # Identify categorical and metric fields
+        if _is_numeric(y_field) and not _is_numeric(x_field):
+            cat_field, metric_field = x_field, y_field
+        elif _is_numeric(x_field) and not _is_numeric(y_field):
+            cat_field, metric_field = y_field, x_field
+        else:
+            # Both numeric or both nominal — trust original order
+            cat_field, metric_field = x_field, y_field
+
+        cat_axis    = {"field": cat_field,    "type": "nominal",      "title": x_label or cat_field}
+        metric_axis = {"field": metric_field, "type": "quantitative", "title": y_label or metric_field}
+
+        avg_label_len = sum(len(str(row.get(cat_field, ""))) for row in data) / max(len(data), 1)
         use_horizontal = chart_type == "horizontal_bar" or avg_label_len > 12 or len(data) > 6
+
         encoding = {}
         if use_horizontal:
-            encoding["y"] = {**x_axis, "sort": "-x"}
-            encoding["x"] = y_axis
+            encoding["y"] = {**cat_axis, "sort": "-x"}
+            encoding["x"] = metric_axis
         else:
-            encoding["x"] = x_axis
-            encoding["y"] = y_axis
+            encoding["x"] = cat_axis
+            encoding["y"] = metric_axis
+
         if color_field:
             encoding["color"] = {"field": color_field, "type": "nominal"}
-        base["height"] = max(300, len(data) * 32) if use_horizontal else 300
+        base["height"] = max(300, len(data) * 36) if use_horizontal else 300
         base.update({"mark": {"type": "bar", "cornerRadiusEnd": 3}, "encoding": encoding})
 
     elif chart_type == "scatter":
