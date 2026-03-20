@@ -472,10 +472,12 @@
     const div = document.createElement('div');
     div.className = `msg ${role}`;
 
-    const name = document.getElementById('userSelect').selectedOptions[0]?.text || '';
-    const initials = name.trim().split(/\s+/).filter(Boolean)
-      .map((w, i, a) => (i === 0 || i === a.length - 1) ? w[0].toUpperCase() : null)
-      .filter(Boolean).join('').substring(0, 2);
+    const fullText = document.getElementById('userSelect').selectedOptions[0]?.text || '';
+    const name = fullText.split(/[·\-—(]/)[0].trim();  // strip role/brand suffix
+    const words = name.split(/\s+/).filter(Boolean);
+    const initials = words.length >= 2
+      ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+      : (words[0]?.[0] || '?').toUpperCase();
     const avatar = role === 'user' ? (initials || '?') : SPARK_SVG;
     const content = isMarkdown ? marked.parse(html) : `<p>${html}</p>`;
 
