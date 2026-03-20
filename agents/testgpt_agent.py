@@ -103,6 +103,7 @@ class TestGPTAgent:
         self.system_prompt = load_system_prompt(user_context)
         self.conversation_history: list[dict] = []
         self._first_turn = True         # used to gate the one-time data brief injection
+        self._brief_injected = False    # True only when brief+ack were actually prepended
         self._turn_count = 0            # tracks total turns for trimming
 
         # TODO: Restore prior conversation history from search_memory
@@ -117,15 +118,15 @@ class TestGPTAgent:
         """Keep conversation history within token-safe bounds.
         Never trims the first 2 messages (data brief + ack).
         """
-        # Count only role=user/assistant messages (not tool_result blobs)
-        # Preserve first 2 (brief + ack) + last N pairs
-        if len(self.conversation_history) <= self._MAX_HISTORY_PAIRS * 2 + 2:
+        # Preserve brief+ack prefix (if injected) + sliding window of last N pairs.
+        # Only skip first 2 messages when brief was actually injected — otherwise
+        # those are the real first exchange and should roll into the window normally.
+        prefix_len = 2 if self._brief_injected else 0
+        tail = self.conversation_history[prefix_len:]
+        if len(tail) <= self._MAX_HISTORY_PAIRS * 2:
             return
-        preserved = self.conversation_history[:2]   # brief + ack
-        rest = self.conversation_history[2:]
-        # Keep last _TRIM_TO_PAIRS * 2 messages
-        rest = rest[-(self._TRIM_TO_PAIRS * 2):]
-        self.conversation_history = preserved + rest
+        tail = tail[-(self._TRIM_TO_PAIRS * 2):]
+        self.conversation_history = self.conversation_history[:prefix_len] + tail
 
     def chat(self, user_message: str) -> "AgentResponse":
         """
@@ -149,12 +150,25 @@ class TestGPTAgent:
         self._first_turn = False
         try:
             from tools.kpi_tools import get_business_summary
+            from models.queries import open_alerts_for_user
+
+            # Resolve user context into correct parameter types
+            pm_str = self.user_context.get("priority_metrics", "Revenue,Velocity,OOS Rate")
+            priority_metrics = [m.strip() for m in pm_str.split(",") if m.strip()]
+            retailers  = self.user_context.get("_retailer_list") or []
+            regions    = self.user_context.get("_region_list") or []
+            brands     = self.user_context.get("_brand_list") or []
+            brand_name = brands[0] if brands else None
+            period_str = self.user_context.get("default_period", "L4W")
+            period_weeks = {"L4W": 4, "L13W": 13, "L52W": 52, "YTD": 52}.get(period_str, 4)
+
             brief = get_business_summary(
-                session=self.session,
-                user_id=self.user_context.get("user_id", ""),
-                retailer_scope=self.user_context.get("retailer_scope", ""),
-                brand_scope=self.user_context.get("brand_scope", ""),
-                default_period=self.user_context.get("default_period", "L4W"),
+                self.session,
+                priority_metrics=priority_metrics,
+                retailers=retailers or None,
+                regions=regions or None,
+                brand_name=brand_name,
+                period_weeks=period_weeks,
             )
             if brief and not brief.get("error"):
                 kpi_lines = []
@@ -164,8 +178,10 @@ class TestGPTAgent:
                         f"  • {card['metric']}: {card.get('unit','')}{card.get('current_value','n/a')} "
                         f"({delta} vs prior {card.get('period_label','')}) [{card.get('trend','flat').upper()}]"
                     )
-                alerts = brief.get("open_alerts", [])
-                alert_lines = [f"  • [{a.get('severity','?')}] {a.get('alert_message','')}" for a in alerts[:3]]
+                alerts = open_alerts_for_user(
+                    self.session, user_retailers=retailers or ["Walmart"]
+                )[:3]
+                alert_lines = [f"  • [{a.get('severity','?')}] {a.get('alert_message','')}" for a in alerts]
                 brief_text = (
                     f"[PRE-FETCHED DATA BRIEF — use this directly, do not call search_memory or get_business_summary]\n"
                     f"User: {self.user_context.get('user_name')} | Role: {self.user_context.get('user_role')} | "
@@ -185,6 +201,7 @@ class TestGPTAgent:
                     "role": "assistant",
                     "content": "Understood. I have the pre-fetched business data and will use it directly.",
                 })
+                self._brief_injected = True
         except Exception:
             pass  # pre-fetch failure is non-fatal; Claude will call tools normally
 

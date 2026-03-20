@@ -8,13 +8,11 @@ Test: curl -X POST http://localhost:8000/chat -H 'Content-Type: application/json
 """
 
 from fastapi import FastAPI, HTTPException, Depends
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse
-import os
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pathlib import Path
+import traceback
 from api.auth import api_key_middleware
 from pydantic import BaseModel
 from sqlalchemy import create_engine
@@ -124,7 +122,6 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
     agent.session = db
 
     try:
-        import traceback
         response = agent.chat(req.message)
     except Exception as e:
         # Log full traceback for debugging
@@ -170,7 +167,7 @@ def get_issues(user_id: str, db: Session = Depends(get_db)):
     """
     from models.queries import open_alerts_for_user
     user_ctx = _resolve_user_context(db, user_id)
-    retailers = [r.strip() for r in (user_ctx.get("retailer_scope") or "").split(",") if r.strip()]
+    retailers = user_ctx.get("_retailer_list") or []
     alerts = open_alerts_for_user(db, user_retailers=retailers)
     return {"user_id": user_id, "issues": alerts, "count": len(alerts)}
 

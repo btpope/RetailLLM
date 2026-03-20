@@ -228,38 +228,35 @@ def get_trend_analysis(
     if not rows:
         return {"error": "No trend data found", "params": params}
 
-    # Group by entity
+    # Column layout per grain (from SELECT statement):
+    #   sku  : sku_id(0) sku_description(1) brand_name(2) period_label(3) metric_value(4) velocity_trend(5) oos_above_threshold(6)
+    #   brand: brand_name(0) period_label(1) metric_value(2) velocity_trend(3) oos_above_threshold(4)
+    #   total: retailer_name(0) period_label(1) metric_value(2) velocity_trend(3) oos_above_threshold(4)
     from collections import defaultdict
     by_entity: dict[str, dict] = defaultdict(dict)
     for row in rows:
         if grain == "sku":
-            key = row[0]  # sku_id
-            label = f"{row[0]} — {row[1]}"  # sku_id — sku_description
-            brand = row[2]
+            key    = row[0]                        # sku_id
+            label  = f"{row[0]} — {row[1]}"       # sku_id — sku_description
+            brand  = row[2]                        # brand_name
+            period = row[3]                        # period_label
+            val    = row[4]                        # metric_value
         elif grain == "brand":
-            key = row[0]
-            label = row[0]
-            brand = row[0]
-        else:
-            key = "total"
-            label = "All Brands — Walmart Total"
-            brand = None
+            key    = row[0]                        # brand_name
+            label  = row[0]
+            brand  = row[0]
+            period = row[1]                        # period_label
+            val    = row[2]                        # metric_value
+        else:  # total
+            key    = "total"
+            label  = "All Brands — Walmart Total"
+            brand  = None
+            period = row[1]                        # period_label
+            val    = row[2]                        # metric_value
 
-        period = row[-3] if grain == "sku" else row[1]
-        val    = row[-3] if grain == "sku" else row[2]
-        if grain == "sku":
-            period = row[2]
-            val    = row[3]
-        elif grain == "brand":
-            period = row[1]
-            val    = row[2]
-        else:
-            period = row[1]
-            val    = row[2]
-
-        by_entity[key]["label"]   = label
-        by_entity[key]["brand"]   = brand
-        by_entity[key][period]    = round(val, 3) if val is not None else None
+        by_entity[key]["label"]  = label
+        by_entity[key]["brand"]  = brand
+        by_entity[key][period]   = round(val, 3) if val is not None else None
 
     # Compute trend signals per entity
     results = []
