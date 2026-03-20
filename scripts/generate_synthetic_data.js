@@ -489,6 +489,8 @@ DROP TABLE IF EXISTS retailer_account_scorecard;
 DROP TABLE IF EXISTS kpi_alert_log;
 DROP TABLE IF EXISTS user_preferences;
 DROP TABLE IF EXISTS metric_store;
+DROP TABLE IF EXISTS benchmark_reference;
+DROP TABLE IF EXISTS supply_chain_weekly;
 
 CREATE TABLE sales_kpi_weekly (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -528,6 +530,39 @@ CREATE TABLE user_preferences (
   region_scope TEXT, brand_scope TEXT, excluded_regions TEXT,
   oos_alert_threshold_pct REAL, velocity_decline_threshold_pct REAL,
   promo_roi_floor REAL, preferred_time_period TEXT, email_report_cadence TEXT
+);
+
+CREATE TABLE benchmark_reference (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  brand_name TEXT,              -- NULL = applies to all brands in category
+  category TEXT,
+  metric_name TEXT,
+  tier_weak REAL,               -- below this = weak
+  tier_avg_low REAL,
+  tier_avg_high REAL,
+  tier_strong REAL,             -- above this = strong
+  tier_elite REAL,
+  unit TEXT,
+  interpretation_weak TEXT,
+  interpretation_avg TEXT,
+  interpretation_strong TEXT,
+  interpretation_action_weak TEXT,
+  walmart_threshold REAL,
+  walmart_threshold_note TEXT
+);
+
+CREATE TABLE supply_chain_weekly (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  week_ending_date TEXT,
+  retailer_name TEXT,
+  brand_name TEXT,
+  otif_rate_pct REAL,           -- On-Time In-Full %
+  dc_fill_rate_pct REAL,        -- DC Fill Rate %
+  case_fill_rate_pct REAL,      -- Supplier Case Fill %
+  on_time_delivery_pct REAL,    -- On-Time component
+  in_full_delivery_pct REAL,    -- In-Full component
+  chargebacks_dollars REAL,     -- OTIF fines for the week
+  compliance_score REAL         -- SQEP compliance 0-100
 );
 
 CREATE TABLE metric_store (
@@ -672,6 +707,68 @@ writeCsv(`${DATA_DIR}/sku_reference.csv`, skuRef);
 console.log(`  ✅ sku_reference.csv — ${skuRef.length} items`);
 
 // Sanity check
+// ─── Benchmark Reference Data ────────────────────────────────────────────────
+console.log('\nSeeding benchmark reference...');
+const benchmarks = [
+  // Velocity benchmarks — brand-specific
+  { brand_name:'Apex',  category:'Salty Snacks',   metric_name:'velocity',  tier_weak:3.0,  tier_avg_low:3.0,  tier_avg_high:6.0,  tier_strong:6.0,  tier_elite:10.0, unit:'U/S/W', interpretation_weak:'Below avg for salty snacks at Walmart — delistment risk if sustained below 3.0 U/S/W', interpretation_avg:'In line with Walmart salty snacks average velocity range', interpretation_strong:'Above average — strong shelf productivity; buyer will want to expand facings', interpretation_action_weak:'Investigate distribution gaps, phantom inventory, and competitive pricing. Prepare corrective action plan for buyer.', walmart_threshold:null, walmart_threshold_note:null },
+  { brand_name:'Bolt',  category:'Energy Drinks',  metric_name:'velocity',  tier_weak:5.0,  tier_avg_low:5.0,  tier_avg_high:10.0, tier_strong:10.0, tier_elite:16.0, unit:'U/S/W', interpretation_weak:'Below avg for energy drinks — energy is a high-velocity category; weak performance here draws buyer scrutiny quickly', interpretation_avg:'Tracking with Walmart energy drinks average', interpretation_strong:'Strong velocity — energy drinks category leader territory', interpretation_action_weak:'Energy drinks should drive >10 U/S/W for core SKUs. Check price competitiveness vs Monster/Red Bull and display execution.', walmart_threshold:null, walmart_threshold_note:null },
+  { brand_name:'Silke', category:'Hair Care',       metric_name:'velocity',  tier_weak:1.5,  tier_avg_low:1.5,  tier_avg_high:3.0,  tier_strong:3.0,  tier_elite:5.0,  unit:'U/S/W', interpretation_weak:'Below avg for hair care — category is lower velocity than food; however below 1.5 signals shelf productivity issue', interpretation_avg:'In line with hair care average velocity at Walmart', interpretation_strong:'Strong for hair care — likely a hero SKU with strong household penetration', interpretation_action_weak:'Review planogram placement (eye-level vs. bottom shelf), shade/variant assortment, and promotional frequency.', walmart_threshold:null, walmart_threshold_note:null },
+
+  // OOS Rate — applies to all brands
+  { brand_name:null, category:'All',    metric_name:'oos_rate',  tier_weak:8.0,  tier_avg_low:3.0, tier_avg_high:5.0, tier_strong:3.0, tier_elite:1.5, unit:'%', interpretation_weak:'Critical OOS — above 8% triggers Walmart replenishment review. Buyer visibility is near-certain.', interpretation_avg:'Elevated but manageable — above 3% warrants root cause investigation', interpretation_strong:'Healthy OOS rate — shelf availability meeting Walmart expectations', interpretation_action_weak:'Identify if OOS is DC-side (case fill/OTIF issue) or store-side (phantom inventory/replenishment cycle). Engage Walmart supply chain team.', walmart_threshold:5.0, walmart_threshold_note:'Above 5% triggers buyer monitoring; above 8% risks replenishment reduction; above 12% risks delistment at next modular review' },
+
+  // Promo ROI — all brands
+  { brand_name:null, category:'All',    metric_name:'promo_roi', tier_weak:1.0,  tier_avg_low:1.0, tier_avg_high:1.8, tier_strong:1.8, tier_elite:2.5, unit:'x', interpretation_weak:'Below breakeven — trade spend is not generating incremental profit. This promotion is losing money.', interpretation_avg:'Acceptable ROI range — profitable but room to optimize promo depth or mechanics', interpretation_strong:'Strong promo ROI — trade investment is working efficiently', interpretation_action_weak:'Reduce promo depth or frequency. If strategic (new item trial), establish an exit plan with a defined velocity threshold.', walmart_threshold:null, walmart_threshold_note:null },
+
+  // Promo Lift — all brands
+  { brand_name:null, category:'All',    metric_name:'promo_lift', tier_weak:15.0, tier_avg_low:15.0, tier_avg_high:40.0, tier_strong:40.0, tier_elite:70.0, unit:'%', interpretation_weak:'Low promo lift — consumers not responding to the promotion. Possible causes: insufficient depth, poor feature/display, or category fatigue.', interpretation_avg:'Average promo response — promotion is working but not a standout event', interpretation_strong:'Strong lift — promotion is driving meaningful volume. Verify supply chain was ready for demand.', interpretation_action_weak:'Review promo mechanics: depth (is TPR deep enough?), feature/display execution (are you getting secondary placement?), and timing (competitive overlap?).', walmart_threshold:null, walmart_threshold_note:null },
+
+  // OTIF
+  { brand_name:null, category:'All',    metric_name:'otif',      tier_weak:95.0, tier_avg_low:95.0, tier_avg_high:98.0, tier_strong:98.0, tier_elite:99.5, unit:'%', interpretation_weak:'Below 95% OTIF — Walmart is actively charging 3% cost-of-goods fines on affected POs. Immediate supply chain review required.', interpretation_avg:'Below target — OTIF between 95-98% puts you in fine risk territory and triggers buyer monitoring', interpretation_strong:'Compliant — meeting Walmart\'s 98% OTIF target', interpretation_action_weak:'Review PO lead times, carrier performance, and DC fill rates. Escalate with Walmart supply chain team immediately.', walmart_threshold:98.0, walmart_threshold_note:'Below 98% = monitoring; below 95% = 3% cost-of-goods fine per PO; chronic non-compliance risks supply chain sanctions' },
+
+  // DC Fill Rate
+  { brand_name:null, category:'All',    metric_name:'dc_fill_rate', tier_weak:93.0, tier_avg_low:93.0, tier_avg_high:97.0, tier_strong:97.0, tier_elite:99.0, unit:'%', interpretation_weak:'DC fill below 93% — you are failing to ship what Walmart ordered. This is the root cause of store-level OOS.', interpretation_avg:'DC fill in monitor range — aim for >97% to stay compliant', interpretation_strong:'Strong DC fill rate — supply chain meeting Walmart replenishment needs', interpretation_action_weak:'Check inventory availability at DC, case quantity accuracy, and inbound carrier on-time delivery.', walmart_threshold:97.0, walmart_threshold_note:'Below 97% triggers Walmart supply chain monitoring. Below 93% is a critical failure requiring immediate buyer communication.' },
+
+  // ACV Distribution
+  { brand_name:null, category:'All',    metric_name:'acv',  tier_weak:50.0, tier_avg_low:70.0, tier_avg_high:85.0, tier_strong:85.0, tier_elite:95.0, unit:'%', interpretation_weak:'Limited distribution — below 50% ACV means this item is only in a fraction of Walmart\'s volume. Significant distribution opportunity exists.', interpretation_avg:'Building distribution — 70-85% ACV is a growth phase; focus on gaining remaining high-ACV stores', interpretation_strong:'National distribution — strong ACV coverage across Walmart\'s volume base', interpretation_action_weak:'Identify which high-ACV Walmart stores do not carry this item. Build a distribution sell-in with velocity data from existing stores as proof.', walmart_threshold:null, walmart_threshold_note:null },
+
+  // YoY Revenue Growth
+  { brand_name:null, category:'All',    metric_name:'yoy_growth', tier_weak:0.0, tier_avg_low:0.0, tier_avg_high:8.0, tier_strong:8.0, tier_elite:20.0, unit:'%', interpretation_weak:'Revenue declining YoY — negative growth at Walmart is a significant buyer concern. Category growth typically runs 3-5%; declining means you are losing share.', interpretation_avg:'Modest growth — tracking with category average of 3-8%; maintaining share position', interpretation_strong:'Above-market growth — gaining share. Buyer will view this favorably in line review.', interpretation_action_weak:'Diagnose root cause: is it distribution loss, velocity decline, or price elasticity? Build a recovery narrative before the next buyer meeting.', walmart_threshold:null, walmart_threshold_note:null },
+];
+
+const insertBench = db.prepare(`INSERT INTO benchmark_reference (brand_name,category,metric_name,tier_weak,tier_avg_low,tier_avg_high,tier_strong,tier_elite,unit,interpretation_weak,interpretation_avg,interpretation_strong,interpretation_action_weak,walmart_threshold,walmart_threshold_note) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`);
+for (const b of benchmarks) {
+  insertBench.run(b.brand_name,b.category,b.metric_name,b.tier_weak,b.tier_avg_low,b.tier_avg_high,b.tier_strong,b.tier_elite,b.unit,b.interpretation_weak,b.interpretation_avg,b.interpretation_strong,b.interpretation_action_weak,b.walmart_threshold,b.walmart_threshold_note);
+}
+console.log(`  ✅ ${benchmarks.length} benchmark reference rows`);
+
+// ─── Supply Chain Weekly Data ─────────────────────────────────────────────────
+console.log('\nGenerating supply chain data...');
+{
+  const scRows = [];
+  const brands = Object.keys(BRANDS);
+  for (const week of WEEKS) {
+    for (const brand of brands) {
+      // Base OTIF around 97% with brand variation and occasional dips
+      const baseOtif = brand === 'Bolt' ? 97.2 : brand === 'Apex' ? 97.8 : 96.5;
+      const onTime  = Math.min(100, Math.max(85, randGaussClamp(baseOtif + 0.5, 1.2, 88, 100)));
+      const inFull  = Math.min(100, Math.max(85, randGaussClamp(baseOtif - 0.5, 1.5, 85, 100)));
+      const otif    = (onTime / 100) * (inFull / 100) * 100;
+      const dcFill  = Math.min(100, Math.max(85, randGaussClamp(97.0, 1.8, 85, 100)));
+      const caseFill = Math.min(100, Math.max(85, randGaussClamp(97.5, 1.2, 87, 100)));
+      // Chargebacks only when OTIF < 95
+      const chargebacks = otif < 95 ? +(randGaussClamp(8000, 4000, 1000, 35000)).toFixed(2) : 0;
+      const compliance  = Math.min(100, Math.max(70, randGaussClamp(94, 4, 70, 100)));
+      scRows.push([week, 'Walmart', brand, +otif.toFixed(2), +dcFill.toFixed(2), +caseFill.toFixed(2), +onTime.toFixed(2), +inFull.toFixed(2), chargebacks, +compliance.toFixed(1)]);
+    }
+  }
+  const insertSC = db.prepare(`INSERT INTO supply_chain_weekly (week_ending_date,retailer_name,brand_name,otif_rate_pct,dc_fill_rate_pct,case_fill_rate_pct,on_time_delivery_pct,in_full_delivery_pct,chargebacks_dollars,compliance_score) VALUES (?,?,?,?,?,?,?,?,?,?)`);
+  const insertManySC = db.transaction(rows => { for (const r of rows) insertSC.run(...r); });
+  insertManySC(scRows);
+  console.log(`  ✅ ${scRows.length} supply chain rows (${WEEKS.length} weeks × ${brands.length} brands)`);
+}
+
 // ─── Metric Store Pre-computation ────────────────────────────────────────────
 console.log('\nPre-computing metric store...');
 

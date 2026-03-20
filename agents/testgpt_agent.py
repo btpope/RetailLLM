@@ -23,6 +23,10 @@ from config.settings import ANALYST_MODEL, ANTHROPIC_API_KEY, SYNTHETIC_DATA_MOD
 from tools.execute_sql import execute_sql, TOOL_DEFINITION as SQL_TOOL
 from tools.generate_vega_chart import generate_vega_chart, TOOL_DEFINITION as CHART_TOOL
 from tools.metric_store import get_metric, TOOL_DEFINITION as METRIC_TOOL
+from tools.benchmark import (
+    get_benchmark, BENCHMARK_TOOL_DEFINITION,
+    get_trend_analysis, TREND_TOOL_DEFINITION,
+)
 from tools.kpi_tools import (
     get_kpi_card, KPI_CARD_TOOL,
     get_business_summary, BUSINESS_SUMMARY_TOOL,
@@ -37,7 +41,9 @@ from tools.workflow_tools import (
 
 # All tools exposed to Claude — add generate_infographic_image here in Step 3
 ALL_TOOLS = [
-    METRIC_TOOL,               # Req #1-4: pre-computed metric store — ALWAYS prefer over execute_sql
+    METRIC_TOOL,               # P1: pre-computed metric store — first call for any KPI question
+    BENCHMARK_TOOL_DEFINITION, # P2: benchmark comparisons + Walmart thresholds
+    TREND_TOOL_DEFINITION,     # P2: multi-period trend signals + line review risk
     SEARCH_MEMORY_TOOL,        # load prefs before anything else
     BUSINESS_SUMMARY_TOOL,     # Req #1: "How is my business?" (fallback if metric_store insufficient)
     KPI_CARD_TOOL,             # Req #2/#4: single-metric drilldown (fallback)
@@ -245,6 +251,10 @@ class TestGPTAgent:
                 )
             elif tool_name == "get_metric":
                 return get_metric(self.session, **tool_input)
+            elif tool_name == "get_benchmark":
+                return get_benchmark(self.session, **tool_input)
+            elif tool_name == "get_trend_analysis":
+                return get_trend_analysis(self.session, **tool_input)
             elif tool_name == "generate_vega_chart":
                 return generate_vega_chart(**tool_input)
             elif tool_name == "get_kpi_card":
