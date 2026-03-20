@@ -1,76 +1,75 @@
 # TestGPT — Open Questions & Assumptions
-
-Generated during initial scaffold. Needs product input before Step 1 implementation begins.
+**Last Updated:** 2026-03-20
 
 ---
 
-## 🏗️ Infrastructure
+## ✅ Resolved Questions
 
+| # | Question | Decision |
+|---|----------|----------|
+| I1 | Which cloud? | Azure — Engine's existing infrastructure |
+| I2 | Which database? | SQLite (prototype) → Databricks Delta Lake (production) |
+| I3 | How many retailers? | **Walmart only** — CPG customer team calling on one retailer; multi-retailer removed from prototype scope |
+| I4 | Data refresh cadence? | Weekly grain; daily/intra-week not in v1 scope |
+| I5 | Latency target? | Target <20s; current avg ~10–20s with pre-fetch brief optimization |
+| A1 | Auth model? | API key for prototype (`TESTGPT_API_KEY`); SSO/SAML for production Engine |
+| D2 | Synthetic data? | Yes — fully synthetic, deterministic (seed=42), labeled `[SYNTHETIC DATA — DEMO ONLY]` |
+| D3 | Prior year comparison? | Computed at query time via anchor-date-aware period bounds |
+| M1 | Claude model tier? | `claude-sonnet-4-6` — best quality/speed balance for CPG narratives |
+| M2 | Gemini image API? | Deferred to P2 — `generate_infographic_image` is a stub |
+| M3 | Model provider lock-in? | Provider-agnostic by design (`ANALYST_MODEL` + `ANALYST_PROVIDER` config) |
+
+---
+
+## 🔍 Still Pending — Needs Product Input
+
+### Infrastructure
 | # | Question | Impact |
 |---|----------|--------|
-| I1 | **Which cloud?** AWS, GCP, or Azure? Affects DB choice, auth, and Gemini API availability. | High |
-| I2 | **Which database?** SQLite is prototype-only. Production: Snowflake, BigQuery, Redshift, or Postgres? | High |
-| I3 | **How many retailers?** Schema supports 8 top US retailers. Is that the right scope for v1? | Medium |
-| I4 | **Data refresh cadence?** Weekly grain in schema. Is daily or intra-week needed for v1? | Medium |
-| I5 | **Latency target?** "How is my business?" should return in how many seconds? Affects model choice. | High |
+| I6 | **Production OTIF/supply chain data source?** Engine warehouse has OTIF/DC fill rate? Or does it come from a separate supplier scorecard system (e.g., Retail Link Direct Connect)? | High |
 
----
-
-## 🔐 Auth & Access
-
+### Auth & Access
 | # | Question | Impact |
 |---|----------|--------|
-| A1 | **Auth model?** SSO/SAML, OAuth, API key, or session tokens? | High |
-| A2 | **Data scoping enforcement**: Does retailer/brand scope come from the auth token or user_preferences table? | High |
-| A3 | **Multi-tenant?** Are multiple CPG brands in the same instance, or one instance per client? | High |
-| A4 | **Who can assign issues?** Any user, or only managers/admins? Role-based permission model needed. | Medium |
+| A2 | **Data scoping enforcement**: Does retailer/brand scope come from the auth token or user_preferences table in production? | High |
+| A3 | **Multi-tenant?** One Engine instance per CPG client, or multiple brands in one instance with row-level security? | High |
+| A4 | **Issue assignment permissions?** Any user can assign, or managers/admins only? Role model needed for `flag_issue` → `send_for_approval` → assign flow. | Medium |
 
----
-
-## 📊 Data & Schema
-
+### Data & Schema
 | # | Question | Impact |
 |---|----------|--------|
-| D1 | **Live Engine data connection**: Is Engine warehouse accessible via JDBC/ODBC/API? What credentials format? | High |
-| D2 | **Synthetic data seed**: Should we generate realistic synthetic data for demo, or use anonymized real data? | Medium |
-| D3 | **Prior year comparison**: Does `prior_year_*` come from the source, or do we compute it at query time? | Medium |
-| D4 | **Category definitions**: Are category/sub_category standardized, or do they vary by retailer feed? | Medium |
-| D5 | **Syndicated data** (Req #21 benchmarking): Nielsen/Circana feed available? Separate schema needed. | Medium |
+| D1 | **Live Engine data connection**: Is the Engine warehouse accessible via JDBC/ODBC/REST API? What's the credential format? | High |
+| D4 | **Category definitions**: Are `category`/`sub_category` standardized across retailer feeds, or do they vary? Affects Fineline mapping. | Medium |
+| D5 | **Walmart-specific fields**: Should OTIF rate and DC fill rate be added to the main `sales_kpi_weekly` grain, or kept in a separate supply chain table? | Medium |
+| D6 | **Actual Engine client data**: Brad to provide real velocity/price ranges for Apex/Bolt/Silke equivalents to calibrate synthetic data better. Current ranges are educated estimates. | Low |
 
----
-
-## 🤖 Model & AI
-
+### Model & AI
 | # | Question | Impact |
 |---|----------|--------|
-| M1 | **Claude model tier**: `claude-sonnet-4-6` assumed. Should `claude-opus-4` be used for high-stakes narratives? | Medium |
-| M2 | **Gemini image API access**: Is `gemini-2.5-flash-exp` available and approved for Step 3? | P2 |
-| M3 | **Model provider lock-in tolerance**: Is there a preference to stay Anthropic-only, or is provider flexibility a real requirement? | Medium |
-| M4 | **Confidence scoring calibration**: How should "High / Medium / Low" confidence be defined for CPG recommendations? | Medium |
+| M4 | **Confidence scoring calibration**: How should HIGH/MEDIUM/LOW confidence be defined for CPG recommendations? Tie to data recency? Sample size? | Medium |
+| M5 | **Session memory persistence**: In-memory dict works for prototype. Production: Redis? DB-backed? What's the session expiry policy? | Medium |
 
----
-
-## 💬 Product / UX
-
+### Product / UX
 | # | Question | Impact |
 |---|----------|--------|
-| P1 | **Frontend**: React SPA, embedded in Engine, or standalone? Affects Vega-Lite rendering approach. | High |
-| P2 | **Issue queue UI**: Is there a Jira/Slack integration for issue assignment, or is it native to Engine? | Medium |
-| P3 | **Narrative modes**: Should Executive/Merchant/Analyst be user-selectable per-query, or only configurable in settings? | Low |
-| P4 | **Email delivery** (Req #17 Monday Reports): Which email provider? SendGrid, SES, or Engine native? | P2 |
-| P5 | **Mobile support?** Vega-Lite charts are responsive, but narrative UX may need optimization for mobile buyers. | Low |
+| P1 | **Frontend integration**: Standalone SPA (current), or embed in Engine Glass? Affects Vega-Lite rendering approach. | High |
+| P2 | **Issue queue UI**: Native to Engine, or Jira/Slack integration for issue assignment? | Medium |
+| P3 | **Narrative mode**: Executive/Merchant/Analyst selectable per-query (current: per user config only)? | Low |
+| P4 | **Monday Reports** (Req #17): Email provider for scheduled reports? SendGrid, SES, or Engine native? | P2 |
+| P5 | **Walmart-specific fields to add**: Brad to confirm which additional fields are needed (e.g., OTIF rate at item level, DC fill rate, on-shelf availability from store checks). | Medium |
+| P6 | **Bolt velocity max**: Synthetic data caps Bolt promo velocity at ~40 U/S/W. Brad to confirm this is realistic for extreme promo weeks. | Low |
 
 ---
 
-## ✅ Assumptions Made in Scaffold
+## Assumptions in Effect
 
-1. **SQLite for prototype**: Swappable via `DB_URL` env var; ORM is DB-agnostic
-2. **Claude Sonnet** as default model; configurable in `config/settings.py`
-3. **Anthropic Python SDK** used for tool_use; `TestGPTAgent` uses the standard messages API
-4. **FastAPI** for the API layer; can swap to Express/Next.js API routes if Engine is Node-based
-5. **Top 8 US retailers** in synthetic data: Walmart, Target, Kroger, Costco, Amazon, CVS, Walgreens, Albertsons
-6. **Weekly grain** for sales data (CPG industry standard); sub-week not scoped for v1
-7. **In-memory session store** for prototype; Redis recommended for production
-8. **Infographic generation deferred** until Google API access confirmed (P2)
-9. **No PII in outputs** enforced by system prompt; not yet enforced in code (TODO)
-10. **Req #23 (Engine-7B fine-tuning) explicitly deferred** — validate Claude base model first
+1. **Walmart-only** — no multi-retailer comparisons; all users have `retailer_scope: Walmart`
+2. **Weekly grain** — sub-week analysis not in scope for v1
+3. **SQLite for prototype** — swappable via `DB_URL` env var; SQLAlchemy is DB-agnostic
+4. **In-memory session store** — `_agent_sessions` dict; Redis recommended for production
+5. **Infographic generation deferred** — until Gemini API access confirmed (P2)
+6. **No PII in outputs** — enforced by system prompt; not yet enforced in code (TODO for production)
+7. **HITL mandatory** — all outbound actions require explicit user approval; no autonomous sends
+8. **Req #23 (Engine-7B fine-tuning) explicitly deferred** — validate Claude base model first
+9. **Feature branches from Phase 4** — PR-based review workflow; no direct pushes to master for features
+10. **Hot-copy for Python files** — `docker cp` + `docker restart`; full rebuild only for schema/dependency changes
