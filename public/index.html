@@ -326,7 +326,7 @@
       badge.style.display = 'inline';
       el.innerHTML = alerts.map(a => {
         const sev = (a.severity || 'low').toLowerCase();
-        const msg = (a.alert_message || a.message || '').substring(0, 72);
+        const msg = (a.alert_message || a.root_cause_narrative || a.message || '').substring(0, 72);
         return `<div class="alert-item" title="${a.alert_message || ''}" onclick="sendStarter('Tell me about this alert: ${(a.alert_message||'').replace(/'/g,'')}')">
           <div class="alert-dot ${sev}"></div>
           <div class="alert-text">${msg}${msg.length===72?'…':''}</div>
