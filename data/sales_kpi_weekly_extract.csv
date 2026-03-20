@@ -1,0 +1,145 @@
+week_ending_date,retailer_name,region,brand_name,category,sub_category,sku_id,sku_description,upc,dollar_sales,unit_sales,velocity_per_store,avg_selling_price,num_stores_selling,acv_distribution_pct,oos_rate_pct,prior_year_dollar_sales,prior_year_unit_sales,yoy_dollar_growth_pct
+2023-01-07,Kroger,West,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,6770.9,1098,7.9,6.17,139,88.44,13.4,5500.59,892,23.09
+2023-01-07,Costco,Northeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,1603.31,260,5.19,6.17,50,75.75,9.95,1708.14,277,-6.14
+2023-01-07,CVS,West,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,2654.13,382,5.7,6.95,67,74.01,13.38,2438.74,351,8.83
+2023-01-07,CVS,South Central,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,953.15,202,5.76,4.72,35,75.82,8.23,811.59,172,17.44
+2023-01-07,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,10188.22,2904,4.97,3.51,584,67.91,5.54,10100.51,2879,0.87
+2023-01-07,Walgreens,Midwest,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,943.74,269,5.07,3.51,53,78.93,12.52,873.58,249,8.03
+2023-01-07,Albertsons,Southeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,1220.9,348,5.11,3.51,68,68.29,12.11,1175.29,335,3.88
+2023-01-07,Albertsons,Southeast,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,1042.24,288,5.53,3.62,52,88.28,12.69,911.96,252,14.29
+2023-01-07,Albertsons,West,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,1313.66,363,5.34,3.62,68,63.89,5.13,1248.52,345,5.22
+2023-01-07,CVS,Southeast,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,1082.75,193,5.85,5.61,33,60.12,12.74,1071.53,191,1.05
+2023-01-07,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A07,Brand A 6pk Max,0-25570-85841-6,13942.71,2074,4.14,6.72,501,62.07,10.28,14554.47,2165,-4.2
+2023-01-07,Target,Northeast,Brand A,Snacks,Salty Snacks,SKU-A07,Brand A 6pk Max,0-25570-85841-6,5519.27,821,4.35,6.72,189,65.84,9.23,4968.02,739,11.1
+2023-01-07,Walgreens,Southeast,Brand A,Snacks,Salty Snacks,SKU-A08,Brand A 12pk Pure,0-50490-13369-7,742.94,130,2.6,5.71,50,68.77,12.29,617.21,108,20.37
+2023-01-07,CVS,Midwest,Brand A,Snacks,Salty Snacks,SKU-A10,Brand A XL Wild,0-87283-55719-9,578.44,125,2.79,4.63,45,72.21,15.18,578.44,125,0
+2023-01-07,Walmart,South Central,Brand B,Beverages,Energy Drinks,SKU-B01,Brand B 4oz Original,0-16722-69387-0,12969.32,4152,7.43,3.12,559,83.1,10.3,11126.38,3562,16.56
+2023-01-07,Walmart,Southeast,Brand B,Beverages,Energy Drinks,SKU-B02,Brand B 8oz Bold,0-17917-94936-1,6027.38,1665,5.12,3.62,325,85.33,11.9,6552.29,1810,-8.01
+2023-01-07,CVS,South Central,Brand B,Beverages,Energy Drinks,SKU-B02,Brand B 8oz Bold,0-17917-94936-1,886.91,245,4.71,3.62,52,72.35,10.76,919.49,254,-3.54
+2023-01-07,Target,Northeast,Brand B,Beverages,Energy Drinks,SKU-B03,Brand B 12oz Lite,0-19984-11425-2,3313.38,1226,5,2.7,245,74.6,5.27,3045.82,1127,8.78
+2023-01-07,Walmart,Midwest,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,12322.77,3418,7.65,3.61,447,72.64,10.9,11565.66,3208,6.55
+2023-01-07,Target,South Central,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,4477.73,1242,7.35,3.61,169,67.92,12.16,4023.47,1116,11.29
+2023-01-07,Kroger,West,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,4737.31,1314,9.25,3.61,142,56.4,11.15,4041.49,1121,17.22
+2023-01-07,Costco,Midwest,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,1258.23,349,6.97,3.61,50,75.1,5.06,1294.29,359,-2.79
+2023-01-07,Albertsons,Midwest,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,1297.89,360,7.34,3.61,49,65.95,10.59,1269.05,352,2.27
+2023-01-07,Target,Northeast,Brand B,Beverages,Energy Drinks,SKU-B05,Brand B 24oz Classic,0-73592-26166-4,2754.87,815,6.22,3.38,131,64.91,7.66,2474.31,732,11.34
+2023-01-07,Walgreens,Midwest,Brand B,Beverages,Energy Drinks,SKU-B05,Brand B 24oz Classic,0-73592-26166-4,993.78,294,6.01,3.38,49,69.82,12.04,973.5,288,2.08
+2023-01-07,Kroger,South Central,Brand B,Beverages,Energy Drinks,SKU-B06,Brand B 32oz Pro,0-99607-60652-5,3666.16,1406,9.07,2.61,155,63.29,14.8,3144.66,1206,16.58
+2023-01-07,Costco,Midwest,Brand B,Beverages,Energy Drinks,SKU-B06,Brand B 32oz Pro,0-99607-60652-5,2010.39,771,9.75,2.61,79,79.56,10.07,1741.82,668,15.42
+2023-01-07,Albertsons,Northeast,Brand B,Beverages,Energy Drinks,SKU-B06,Brand B 32oz Pro,0-99607-60652-5,1457.6,559,9.16,2.61,61,58.54,10.61,1277.68,490,14.08
+2023-01-07,Kroger,West,Brand B,Beverages,Energy Drinks,SKU-B07,Brand B 6pk Max,0-40326-63661-6,2160.49,676,4.69,3.2,144,69.16,10.61,2329.88,729,-7.27
+2023-01-07,Costco,West,Brand B,Beverages,Energy Drinks,SKU-B08,Brand B 12pk Pure,0-50478-85881-7,3242.79,871,8.54,3.72,102,63.23,10.07,2930.06,787,10.67
+2023-01-07,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,14694.96,2383,5.99,6.17,398,75.59,2.03,15040.28,2439,-2.3
+2023-01-07,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,15058.78,2442,6.34,6.17,385,59.23,2.28,15243.78,2472,-1.21
+2023-01-07,Target,Southeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,5617.75,911,6.07,6.17,150,58.24,2.49,5667.09,919,-0.87
+2023-01-07,Target,Northeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,4513.94,732,5.23,6.17,140,64.67,3.24,4785.26,776,-5.67
+2023-01-07,Kroger,Southeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,4002.11,649,5.64,6.17,115,69.17,3.9,4347.44,705,-7.94
+2023-01-07,Kroger,South Central,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,3373.12,547,5.16,6.17,106,75.59,1.81,3508.78,569,-3.87
+2023-01-07,CVS,Southeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,1449.15,235,5.73,6.17,41,73.03,2.24,1547.81,251,-6.37
+2023-01-07,Walgreens,Northeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,1017.49,165,5.33,6.17,31,69.71,4.51,1060.65,172,-4.07
+2023-01-07,Walgreens,South Central,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,1011.32,164,5.13,6.17,32,64.09,2.67,1060.65,172,-4.65
+2023-01-07,Albertsons,Midwest,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,1708.14,277,5.43,6.17,51,60.91,1.27,1837.64,298,-7.05
+2023-01-07,Albertsons,West,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,2207.64,358,6.28,6.17,57,67.84,3.41,2256.97,366,-2.19
+2023-01-07,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,17168.45,2471,4.86,6.95,508,79.91,2.12,17647.86,2540,-2.72
+2023-01-07,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,14792.24,2129,4.13,6.95,515,67.23,2.75,16188.78,2330,-8.63
+2023-01-07,Target,Northeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,6760.38,973,4.27,6.95,228,68.45,1.96,7163.36,1031,-5.63
+2023-01-07,Target,Midwest,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,7184.21,1034,4.44,6.95,233,85.44,3.93,7712.25,1110,-6.85
+2023-01-07,Kroger,Northeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,4814.95,693,4.25,6.95,163,82.82,1.66,5120.66,737,-5.97
+2023-01-07,Kroger,South Central,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,4147.94,597,4.12,6.95,145,74.74,3.28,4411.96,635,-5.98
+2023-01-07,Costco,South Central,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,2077.44,299,4.2,6.95,71,66.1,2.4,2160.82,311,-3.86
+2023-01-07,CVS,Midwest,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,1584.14,228,4.56,6.95,50,80.52,1.6,1653.62,238,-4.2
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,24129.82,3913,9.43,6.17,415,69.71,2.69,17303.42,2806,39.45
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,21077.36,3418,8.9,6.17,384,69.27,2.79,14485.29,2349,45.51
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,21120.53,3425,8.76,6.17,391,64.01,1.96,15521.28,2517,36.07
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,24203.82,3925,8.8,6.17,446,74.45,3.82,19480.22,3159,24.25
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,16415.43,2662,7.31,6.17,364,63.9,3.23,13295.14,2156,23.47
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,24533.3,3531,6.53,6.95,541,69.01,1.02,20732.76,2984,18.33
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,24046.94,3461,7.27,6.95,476,66.56,2.8,16501.44,2375,45.73
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,19704.46,2836,6.06,6.95,468,71.6,1.7,17078.12,2458,15.38
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,30230.64,4351,6.81,6.95,639,70.72,2.08,25651.92,3692,17.85
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,21365.02,3075,6.35,6.95,484,75.84,0.86,16251.31,2339,31.47
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,14726.59,3121,7.21,4.72,433,69.44,3.06,12622.12,2675,16.67
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,13235.53,2805,7.6,4.72,369,70.18,4.79,9729.65,2062,36.03
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,16179.91,3429,8.34,4.72,411,67.39,2.31,11409.45,2418,41.81
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,16618.73,3522,7.31,4.72,482,74.47,4.03,14717.16,3119,12.92
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,13211.94,2800,7.78,4.72,360,75.22,4.06,9191.74,1948,43.74
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,12486.19,3559,5.88,3.51,605,65.66,0.5,11542.44,3290,8.18
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,11444.21,3262,6.3,3.51,518,72.1,2.02,8942.76,2549,27.97
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,10475.91,2986,6.09,3.51,490,77.88,1.19,8904.17,2538,17.65
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,13707.09,3907,7,3.51,558,60.49,2.89,11153.02,3179,22.9
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,9125.2,2601,5.33,3.51,488,69.68,1.09,8156.89,2325,11.87
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,12510.54,3457,7.63,3.62,453,76.21,2.48,8750.5,2418,42.97
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,9441.71,2609,6.18,3.62,422,72.76,2.88,7375.32,2038,28.02
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,11120.88,3073,6.69,3.62,459,80.46,2.58,8446.51,2334,31.66
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,12477.97,3448,6.79,3.62,508,70.86,2.73,10281.29,2841,21.37
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,6767.34,1870,5.28,3.62,354,78.89,0.97,5992.9,1656,12.92
+2025-02-22,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,16521.74,2945,8.49,5.61,347,74.52,2.71,12426.37,2215,32.96
+2025-02-22,Walmart,Northeast,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,13671.81,2437,7.62,5.61,320,76.4,2.4,10367.46,1848,31.87
+2025-02-22,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,14131.84,2519,8.31,5.61,303,70.57,1.33,10333.8,1842,36.75
+2025-02-22,Walmart,West,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,14182.33,2528,7.83,5.61,323,67.72,2.92,12117.82,2160,17.04
+2025-02-22,Walmart,South Central,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,12684.44,2261,7.34,5.61,308,79.48,3.32,9666.2,1723,31.22
+2023-01-07,Kroger,Northeast,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,4285.77,695,6.44,6.17,108,66.86,0.5,3693.78,599,16.03
+2023-01-07,Kroger,Midwest,Brand A,Snacks,Salty Snacks,SKU-A01,Brand A 4oz Original,0-64099-50346-0,4291.94,696,6.51,6.17,107,66.92,2.4,3847.94,624,11.54
+2023-01-07,Kroger,Southeast,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,6711.74,966,5.22,6.95,185,71.48,3.45,6426.88,925,4.43
+2023-01-07,Kroger,Midwest,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,6677,961,5.46,6.95,176,65.81,2.2,5822.4,838,14.68
+2023-01-07,Kroger,West,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,7177.26,1033,6.18,6.95,167,82.26,3.3,6079.48,875,18.06
+2023-01-07,Kroger,Southeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,3392.64,719,5.21,4.72,138,54.85,2.43,3647.44,773,-6.99
+2023-01-07,Kroger,Northeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,3104.81,658,5.22,4.72,126,71.1,2.38,3010.43,638,3.13
+2023-01-07,Kroger,Midwest,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,3458.7,733,6.22,4.72,118,72.15,3.37,2967.97,629,16.53
+2023-01-07,Kroger,West,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,4218.38,894,6.98,4.72,128,71.94,1.57,3543.63,751,19.04
+2023-01-07,Kroger,South Central,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,2524.42,535,4.78,4.72,112,69.17,2.16,2595.2,550,-2.73
+2023-01-07,Kroger,Southeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,3311.87,944,5.36,3.51,176,63.33,0.5,3045.24,868,8.76
+2023-01-07,Kroger,Northeast,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,2834.74,808,5.42,3.51,149,75.37,2.7,2333.05,665,21.5
+2023-01-07,Kroger,Midwest,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,2497.94,712,4.65,3.51,153,85.38,2.12,2518.99,718,-0.84
+2023-01-07,Kroger,West,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,3838.13,1094,5.44,3.51,201,63.97,3.08,3641.66,1038,5.39
+2023-01-07,Kroger,South Central,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,2252.35,642,3.94,3.51,163,68.3,0.81,2469.87,704,-8.81
+2024-06-29,Kroger,Midwest,Brand B,Beverages,Energy Drinks,SKU-B02,Brand B 8oz Bold,0-17917-94936-1,3417.33,944,9.54,3.62,99,60.39,2.7,2501.46,691,36.61
+2023-06-03,CVS,West,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,1197.86,331,6.49,3.62,51,71.83,4.66,1241.28,343,-3.5
+2024-03-02,CVS,West,Brand B,Beverages,Energy Drinks,SKU-B03,Brand B 12oz Lite,0-19984-11425-2,1694.52,627,6.74,2.7,93,65.2,1.53,1508.05,558,12.37
+2023-04-08,Costco,South Central,Brand C,Personal Care,Hair Care,SKU-C02,Brand C 8oz Bold,0-72972-30086-1,1000.77,134,2.86,7.47,47,69.07,4.71,933.56,125,7.2
+2023-06-03,CVS,South Central,Brand C,Personal Care,Hair Care,SKU-C07,Brand C 6pk Max,0-73499-73753-6,1836.89,222,2.61,8.27,85,69.45,0.82,1704.5,206,7.77
+2024-12-14,Kroger,Northeast,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,4553.44,1263,10.7,3.61,118,75.02,4.52,3338.47,926,36.39
+2024-11-16,Walmart,Northeast,Brand B,Beverages,Energy Drinks,SKU-B09,Brand B Value Fresh,0-48870-59069-8,6514.17,3351,5.87,1.94,571,70.01,3,5703.54,2934,14.21
+2025-01-18,Walmart,South Central,Brand C,Personal Care,Hair Care,SKU-C07,Brand C 6pk Max,0-73499-73753-6,7157.26,865,2.3,8.27,377,79.02,3.05,5800.27,701,23.4
+2024-01-13,Kroger,Southeast,Brand C,Personal Care,Hair Care,SKU-C04,Brand C 16oz Premium,0-81318-45365-3,2638.5,211,1.77,12.5,119,75.78,3.79,2388.41,191,10.47
+2024-07-06,Walmart,South Central,Brand B,Beverages,Energy Drinks,SKU-B03,Brand B 12oz Lite,0-19984-11425-2,10991.44,4067,7.73,2.7,526,73.65,2.21,8291.55,3068,32.56
+2024-01-13,Target,Midwest,Brand C,Personal Care,Hair Care,SKU-C08,Brand C 12pk Pure,0-12619-29880-7,17539.76,1685,4.94,10.41,341,70.3,1.64,14489.82,1392,21.05
+2023-10-28,Kroger,Northeast,Brand A,Snacks,Salty Snacks,SKU-A07,Brand A 6pk Max,0-25570-85841-6,4847.01,721,5.04,6.72,143,66.33,0.5,4672.22,695,3.74
+2023-04-22,Target,Midwest,Brand B,Beverages,Energy Drinks,SKU-B08,Brand B 12pk Pure,0-50478-85881-7,11999.46,3223,11.23,3.72,287,69.16,2.16,9508.72,2554,26.19
+2024-02-10,Target,Northeast,Brand C,Personal Care,Hair Care,SKU-C02,Brand C 8oz Bold,0-72972-30086-1,5735.76,768,3.21,7.47,239,65.6,1.86,4249.54,569,34.97
+2023-03-25,Costco,South Central,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,1741.14,369,6.58,4.72,56,72.65,3.08,1547.68,328,12.5
+2023-07-08,Albertsons,South Central,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,2033.7,431,8.14,4.72,53,82.81,0.5,1604.31,340,26.76
+2024-04-13,Walmart,Northeast,Brand B,Beverages,Energy Drinks,SKU-B09,Brand B Value Fresh,0-48870-59069-8,5621.9,2892,5.35,1.94,541,70.06,1.41,5509.15,2834,2.05
+2023-03-04,Albertsons,Southeast,Brand A,Snacks,Salty Snacks,SKU-A06,Brand A 32oz Pro,0-15560-26712-5,1464.24,261,6.68,5.61,39,68.35,3.58,1436.19,256,1.95
+2024-06-22,Costco,Midwest,Brand B,Beverages,Energy Drinks,SKU-B09,Brand B Value Fresh,0-48870-59069-8,865.06,445,6.02,1.94,74,80.97,2.05,841.73,433,2.77
+2023-11-11,Target,West,Brand A,Snacks,Salty Snacks,SKU-A02,Brand A 8oz Bold,0-57393-34590-1,10687.72,1781,8.06,6,221,73.27,2.31,9900.86,1425,7.95
+2023-03-25,Costco,West,Brand C,Personal Care,Hair Care,SKU-C10,Brand C XL Wild,0-49096-47651-9,1813.5,198,4.71,9.16,42,80.79,2.02,1584.53,173,14.45
+2023-01-14,Albertsons,West,Brand C,Personal Care,Hair Care,SKU-C05,Brand C 24oz Classic,0-10857-76368-4,2833.34,225,3.08,12.59,73,61.24,3.95,3060.01,243,-7.41
+2025-02-15,Albertsons,Northeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,1651.49,350,6.87,4.72,51,68.21,3.27,1321.19,280,25
+2023-01-21,Albertsons,South Central,Brand B,Beverages,Energy Drinks,SKU-B02,Brand B 8oz Bold,0-17917-94936-1,814.51,225,6.09,3.62,37,66.15,3.99,669.71,185,21.62
+2023-01-14,CVS,Midwest,Brand C,Personal Care,Hair Care,SKU-C09,Brand C Value Fresh,0-24747-25375-8,2577.78,307,3.13,8.4,98,70.72,1.11,2309.09,275,11.64
+2023-09-09,Albertsons,Southeast,Brand C,Personal Care,Hair Care,SKU-C04,Brand C 16oz Premium,0-81318-45365-3,1350.51,108,2.29,12.5,47,70.7,3.12,1112.92,89,21.35
+2024-04-13,Albertsons,Midwest,Brand C,Personal Care,Hair Care,SKU-C08,Brand C 12pk Pure,0-12619-29880-7,4819.53,463,6.09,10.41,76,78.89,1.41,3986.78,383,20.89
+2024-01-06,Albertsons,Midwest,Brand C,Personal Care,Hair Care,SKU-C09,Brand C Value Fresh,0-24747-25375-8,1494.61,178,3.42,8.4,52,71.54,2.47,1209.12,144,23.61
+2024-10-05,Albertsons,Midwest,Brand B,Beverages,Energy Drinks,SKU-B05,Brand B 24oz Classic,0-73592-26166-4,1166.17,345,8.63,3.38,40,72.9,3.52,980.26,290,18.97
+2023-08-19,Target,Southeast,Brand B,Beverages,Energy Drinks,SKU-B07,Brand B 6pk Max,0-40326-63661-6,4263.45,1334,7.37,3.2,181,72.06,1.3,3394.14,1062,25.61
+2024-02-10,Costco,South Central,Brand C,Personal Care,Hair Care,SKU-C05,Brand C 24oz Classic,0-10857-76368-4,2228.9,177,3.16,12.59,56,60.49,4.09,2077.79,165,7.27
+2023-11-25,CVS,South Central,Brand B,Beverages,Energy Drinks,SKU-B05,Brand B 24oz Classic,0-73592-26166-4,1352.08,400,8.5,3.38,47,73.57,2.54,1034.34,306,30.72
+2024-11-30,Walmart,Midwest,Brand A,Snacks,Salty Snacks,SKU-A10,Brand A XL Wild,0-87283-55719-9,7737.27,1672,3.58,4.63,467,71.38,3.21,7158.83,1547,8.08
+2024-03-23,Walgreens,Northeast,Brand C,Personal Care,Hair Care,SKU-C03,Brand C 12oz Lite,0-40233-28625-2,3484.64,275,4.17,12.67,66,68.4,5.29,2813.06,222,23.87
+2024-04-13,Albertsons,South Central,Brand C,Personal Care,Hair Care,SKU-C10,Brand C XL Wild,0-49096-47651-9,1483.78,162,3.67,9.16,44,79.4,3.6,1456.3,159,1.89
+2023-04-29,Walmart,South Central,Brand B,Beverages,Energy Drinks,SKU-B01,Brand B 4oz Original,0-16722-69387-0,17785.96,5694,9.65,3.12,590,44.19,1.53,15059.03,4821,18.11
+2023-02-25,Kroger,Northeast,Brand C,Personal Care,Hair Care,SKU-C06,Brand C 32oz Pro,0-28808-64353-5,1348.12,177,2.52,7.62,70,66.37,2.99,1447.13,190,-6.84
+2025-02-08,Costco,Southeast,Brand B,Beverages,Energy Drinks,SKU-B07,Brand B 6pk Max,0-40326-63661-6,1112.21,348,6.22,3.2,56,74.27,5.06,920.45,288,20.83
+2024-05-25,Walmart,South Central,Brand B,Beverages,Energy Drinks,SKU-B07,Brand B 6pk Max,0-40326-63661-6,6149.09,1924,5.71,3.2,337,71.29,3.24,6014.86,1882,2.23
+2025-02-01,Target,West,Brand A,Snacks,Salty Snacks,SKU-A04,Brand A 16oz Premium,0-55065-71795-3,5858.93,1670,7.2,3.51,232,70.98,3.64,4402.97,1255,33.07
+2024-02-17,Costco,Northeast,Brand A,Snacks,Salty Snacks,SKU-A03,Brand A 12oz Lite,0-32493-89385-2,1524.09,323,6.34,4.72,51,65.94,3.27,1325.91,281,14.95
+2023-09-23,Target,Northeast,Brand B,Beverages,Energy Drinks,SKU-B03,Brand B 12oz Lite,0-19984-11425-2,3256.76,1761,7.97,1.85,221,85.61,5.62,3343.11,1237,-2.58
+2023-08-05,Target,South Central,Brand A,Snacks,Salty Snacks,SKU-A09,Brand A Value Fresh,0-32065-68112-8,4046.38,860,3.66,4.71,235,62.82,3.68,3566.46,758,13.46
+2023-01-28,Walmart,West,Brand C,Personal Care,Hair Care,SKU-C02,Brand C 8oz Bold,0-72972-30086-1,12248.25,1640,2.91,7.47,564,62.4,2.45,11262.41,1508,8.75
+2024-03-23,Target,South Central,Brand C,Personal Care,Hair Care,SKU-C02,Brand C 8oz Bold,0-72972-30086-1,5556.52,744,2.87,7.47,259,68.8,2.11,4951.58,663,12.22
+2024-10-05,Kroger,Northeast,Brand B,Beverages,Energy Drinks,SKU-B04,Brand B 16oz Premium,0-90960-16982-3,5231.23,1451,11.16,3.61,130,54.77,1.88,3944.15,1094,32.63
+2023-07-22,Target,West,Brand C,Personal Care,Hair Care,SKU-C04,Brand C 16oz Premium,0-81318-45365-3,8965.9,717,2.75,12.5,261,76.17,0.5,6977.65,558,28.49
+2023-08-12,Walmart,Southeast,Brand B,Beverages,Energy Drinks,SKU-B06,Brand B 32oz Pro,0-99607-60652-5,20067.39,7696,12.24,2.61,629,67.54,2.58,17960.52,6888,11.73
+2024-01-20,Costco,Northeast,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,1158.05,320,5.33,3.62,60,56.57,3.66,969.87,268,19.4
+2023-06-24,Walmart,Southeast,Brand A,Snacks,Salty Snacks,SKU-A05,Brand A 24oz Classic,0-85360-14608-4,9409.14,2600,6.47,3.62,402,67.95,1.57,9300.57,2570,1.17

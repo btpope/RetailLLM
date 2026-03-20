@@ -1,0 +1,6 @@
+user_id,user_name,user_email,user_role,default_narrative_mode,priority_metrics,retailer_scope,region_scope,brand_scope,excluded_regions,oos_alert_threshold_pct,velocity_decline_threshold_pct,promo_roi_floor,preferred_time_period,email_report_cadence
+USR-001,Sarah Johnson,sarah.johnson@company.com,Brand Manager,Merchant,"Revenue,Velocity,OOS Rate","Walmart,Target,Kroger",,Brand A,,5,10,0.8,L4W,Weekly
+USR-002,Michael Chen,michael.chen@company.com,Sales Director,Executive,"Revenue,Promo Lift,Distribution Points","Walmart,Costco","Southeast,Midwest",,,7,15,1,L13W,Weekly
+USR-003,Rachel Thompson,rachel.thompson@company.com,Category Manager,Analyst,"Velocity,OOS Rate,ACV,Promo ROI","Kroger,Albertsons,CVS","West,Northeast","Brand B,Brand C",,4,8,0.9,L4W,Daily
+USR-004,James Williams,james.williams@company.com,Retail Ops VP,Executive,"Revenue,OOS Rate,OTIF",,,,Puerto Rico,6,12,0.75,L52W,Weekly
+USR-005,Emily Davis,emily.davis@company.com,Analyst,Analyst,"Velocity,YoY Growth,Promo Lift,Cannibalization",,,Brand A,,3,5,1.2,L13W,None
