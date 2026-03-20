@@ -760,7 +760,12 @@ console.log('\nGenerating supply chain data...');
       // Chargebacks only when OTIF < 95
       const chargebacks = otif < 95 ? +(randGaussClamp(8000, 4000, 1000, 35000)).toFixed(2) : 0;
       const compliance  = Math.min(100, Math.max(70, randGaussClamp(94, 4, 70, 100)));
-      scRows.push([week, 'Walmart', brand, +otif.toFixed(2), +dcFill.toFixed(2), +caseFill.toFixed(2), +onTime.toFixed(2), +inFull.toFixed(2), chargebacks, +compliance.toFixed(1)]);
+      scRows.push([
+        String(week), 'Walmart', String(brand),
+        +otif.toFixed(2), +dcFill.toFixed(2), +caseFill.toFixed(2),
+        +onTime.toFixed(2), +inFull.toFixed(2),
+        +chargebacks.toFixed(2), +compliance.toFixed(1)
+      ]);
     }
   }
   const insertSC = db.prepare(`INSERT INTO supply_chain_weekly (week_ending_date,retailer_name,brand_name,otif_rate_pct,dc_fill_rate_pct,case_fill_rate_pct,on_time_delivery_pct,in_full_delivery_pct,chargebacks_dollars,compliance_score) VALUES (?,?,?,?,?,?,?,?,?,?)`);
