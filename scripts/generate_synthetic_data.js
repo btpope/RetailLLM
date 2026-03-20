@@ -488,6 +488,7 @@ DROP TABLE IF EXISTS promo_calendar;
 DROP TABLE IF EXISTS retailer_account_scorecard;
 DROP TABLE IF EXISTS kpi_alert_log;
 DROP TABLE IF EXISTS user_preferences;
+DROP TABLE IF EXISTS metric_store;
 
 CREATE TABLE sales_kpi_weekly (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -527,6 +528,55 @@ CREATE TABLE user_preferences (
   region_scope TEXT, brand_scope TEXT, excluded_regions TEXT,
   oos_alert_threshold_pct REAL, velocity_decline_threshold_pct REAL,
   promo_roi_floor REAL, preferred_time_period TEXT, email_report_cadence TEXT
+);
+
+CREATE TABLE metric_store (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  computed_at TEXT,
+  period_label TEXT,        -- L4W, L13W, L52W, YTD
+  period_start_date TEXT,
+  period_end_date TEXT,
+  num_weeks INTEGER,
+  grain TEXT,               -- total | brand | sku | region
+  retailer_name TEXT,
+  brand_name TEXT,          -- NULL at total grain
+  sku_id TEXT,              -- NULL unless grain=sku
+  sku_description TEXT,     -- NULL unless grain=sku
+  region TEXT,              -- NULL unless grain=region
+
+  -- Volume & Revenue
+  revenue REAL,
+  units_sold REAL,
+  num_stores_selling INTEGER,
+  avg_selling_price REAL,
+
+  -- Velocity (U/S/W — the primary CPG metric)
+  velocity_units_per_store_per_week REAL,
+
+  -- Distribution
+  avg_acv_pct REAL,
+  distribution_points INTEGER,
+
+  -- Shelf health
+  avg_oos_rate_pct REAL,
+
+  -- YoY comparison (same period prior year)
+  revenue_prior_year REAL,
+  units_prior_year REAL,
+  velocity_prior_year REAL,
+  revenue_yoy_pct REAL,
+  velocity_yoy_pct REAL,
+
+  -- Promo performance (NULLs if no promos in period)
+  promo_events INTEGER,
+  avg_promo_lift_pct REAL,
+  avg_promo_roi REAL,
+  total_trade_spend REAL,
+
+  -- Benchmark flags (set vs. category thresholds)
+  oos_above_threshold INTEGER,   -- 1 if avg_oos > 5%
+  velocity_trend TEXT,           -- up | flat | down vs prior period
+  UNIQUE(period_label, grain, retailer_name, brand_name, sku_id, region)
 );
 `);
 
@@ -622,6 +672,215 @@ writeCsv(`${DATA_DIR}/sku_reference.csv`, skuRef);
 console.log(`  ✅ sku_reference.csv — ${skuRef.length} items`);
 
 // Sanity check
+// ─── Metric Store Pre-computation ────────────────────────────────────────────
+console.log('\nPre-computing metric store...');
+
+const ANCHOR_DATE   = '2025-02-22';  // last Saturday in dataset
+const PERIODS = [
+  { label: 'L4W',  weeks: 4,   ytd: false },
+  { label: 'L13W', weeks: 13,  ytd: false },
+  { label: 'L52W', weeks: 52,  ytd: false },
+  { label: 'YTD',  weeks: null, ytd: true  },
+];
+
+function periodDates(p) {
+  if (p.ytd) {
+    // YTD: Jan 1 of anchor year through anchor date
+    const year = ANCHOR_DATE.slice(0, 4);
+    return { start: `${year}-01-01`, end: ANCHOR_DATE };
+  }
+  // Last N weeks: go back p.weeks * 7 days from anchor
+  const end = new Date(ANCHOR_DATE);
+  const start = new Date(ANCHOR_DATE);
+  start.setDate(start.getDate() - p.weeks * 7 + 1);
+  return {
+    start: start.toISOString().slice(0, 10),
+    end:   end.toISOString().slice(0, 10),
+  };
+}
+
+function priorYearDates(dates) {
+  const s = new Date(dates.start); s.setFullYear(s.getFullYear() - 1);
+  const e = new Date(dates.end);   e.setFullYear(e.getFullYear() - 1);
+  return { start: s.toISOString().slice(0, 10), end: e.toISOString().slice(0, 10) };
+}
+
+const insertMetric = db.prepare(`
+  INSERT OR REPLACE INTO metric_store (
+    computed_at, period_label, period_start_date, period_end_date, num_weeks,
+    grain, retailer_name, brand_name, sku_id, sku_description, region,
+    revenue, units_sold, num_stores_selling, avg_selling_price,
+    velocity_units_per_store_per_week,
+    avg_acv_pct, distribution_points,
+    avg_oos_rate_pct,
+    revenue_prior_year, units_prior_year, velocity_prior_year,
+    revenue_yoy_pct, velocity_yoy_pct,
+    promo_events, avg_promo_lift_pct, avg_promo_roi, total_trade_spend,
+    oos_above_threshold, velocity_trend
+  ) VALUES (
+    ?,?,?,?,?,  ?,?,?,?,?,?,
+    ?,?,?,?,?,  ?,?,?,  ?,?,?,?,?,  ?,?,?,?,  ?,?
+  )
+`);
+
+const now = new Date().toISOString();
+let metricRows = 0;
+
+for (const period of PERIODS) {
+  const dates  = periodDates(period);
+  const prior  = priorYearDates(dates);
+  const numWeeks = period.ytd ? Math.round((new Date(dates.end) - new Date(dates.start)) / (7*86400000)) : period.weeks;
+
+  // ── GRAIN: total ────────────────────────────────────────────────────────
+  const totCur = db.prepare(`
+    SELECT SUM(dollar_sales) rev, SUM(unit_sales) units,
+           AVG(velocity_per_store) vel, AVG(avg_selling_price) price,
+           AVG(num_stores_selling) stores, AVG(acv_distribution_pct) acv,
+           AVG(num_stores_selling) dp, AVG(oos_rate_pct) oos
+    FROM sales_kpi_weekly
+    WHERE week_ending_date BETWEEN ? AND ? AND retailer_name='Walmart'
+  `).get(dates.start, dates.end);
+
+  const totPrior = db.prepare(`
+    SELECT SUM(dollar_sales) rev, SUM(unit_sales) units, AVG(velocity_per_store) vel
+    FROM sales_kpi_weekly
+    WHERE week_ending_date BETWEEN ? AND ? AND retailer_name='Walmart'
+  `).get(prior.start, prior.end);
+
+  const promoTot = db.prepare(`
+    SELECT COUNT(*) cnt, AVG(promo_lift_pct) lift, AVG(promo_roi) roi, SUM(trade_spend_dollars) spend
+    FROM promo_calendar
+    WHERE retailer_name='Walmart'
+      AND promo_start_date BETWEEN ? AND ?
+  `).get(dates.start, dates.end);
+
+  const revYoy  = totPrior?.rev  ? +((totCur.rev  - totPrior.rev)  / totPrior.rev  * 100).toFixed(2) : null;
+  const velYoy  = totPrior?.vel  ? +((totCur.vel  - totPrior.vel)  / totPrior.vel  * 100).toFixed(2) : null;
+
+  insertMetric.run(
+    now, period.label, dates.start, dates.end, numWeeks,
+    'total', 'Walmart', null, null, null, null,
+    +(totCur.rev||0).toFixed(2), +(totCur.units||0).toFixed(0),
+    Math.round(totCur.stores||0), +(totCur.price||0).toFixed(2),
+    +(totCur.vel||0).toFixed(3),
+    +(totCur.acv||0).toFixed(2), Math.round(totCur.dp||0),
+    +(totCur.oos||0).toFixed(2),
+    +(totPrior?.rev||0).toFixed(2), +(totPrior?.units||0).toFixed(0),
+    +(totPrior?.vel||0).toFixed(3),
+    revYoy, velYoy,
+    promoTot.cnt||0, promoTot.lift?+(promoTot.lift).toFixed(2):null,
+    promoTot.roi?+(promoTot.roi).toFixed(3):null,
+    promoTot.spend?+(promoTot.spend).toFixed(2):null,
+    (totCur.oos||0) > 5 ? 1 : 0,
+    velYoy === null ? 'flat' : velYoy > 2 ? 'up' : velYoy < -2 ? 'down' : 'flat'
+  );
+  metricRows++;
+
+  // ── GRAIN: brand ────────────────────────────────────────────────────────
+  const brands = db.prepare(`SELECT DISTINCT brand_name FROM sales_kpi_weekly WHERE retailer_name='Walmart'`).all();
+  for (const { brand_name } of brands) {
+    const bCur = db.prepare(`
+      SELECT SUM(dollar_sales) rev, SUM(unit_sales) units,
+             AVG(velocity_per_store) vel, AVG(avg_selling_price) price,
+             AVG(num_stores_selling) stores, AVG(acv_distribution_pct) acv,
+             AVG(num_stores_selling) dp, AVG(oos_rate_pct) oos
+      FROM sales_kpi_weekly
+      WHERE week_ending_date BETWEEN ? AND ?
+        AND retailer_name='Walmart' AND brand_name=?
+    `).get(dates.start, dates.end, brand_name);
+
+    const bPrior = db.prepare(`
+      SELECT SUM(dollar_sales) rev, SUM(unit_sales) units, AVG(velocity_per_store) vel
+      FROM sales_kpi_weekly
+      WHERE week_ending_date BETWEEN ? AND ?
+        AND retailer_name='Walmart' AND brand_name=?
+    `).get(prior.start, prior.end, brand_name);
+
+    const bPromo = db.prepare(`
+      SELECT COUNT(*) cnt, AVG(promo_lift_pct) lift, AVG(promo_roi) roi, SUM(trade_spend_dollars) spend
+      FROM promo_calendar pc
+      JOIN sales_kpi_weekly s ON pc.sku_id = s.sku_id
+      WHERE pc.retailer_name='Walmart' AND s.brand_name=?
+        AND pc.promo_start_date BETWEEN ? AND ?
+    `).get(brand_name, dates.start, dates.end);
+
+    const bRevYoy = bPrior?.rev ? +((bCur.rev - bPrior.rev) / bPrior.rev * 100).toFixed(2) : null;
+    const bVelYoy = bPrior?.vel ? +((bCur.vel - bPrior.vel) / bPrior.vel * 100).toFixed(2) : null;
+
+    insertMetric.run(
+      now, period.label, dates.start, dates.end, numWeeks,
+      'brand', 'Walmart', brand_name, null, null, null,
+      +(bCur.rev||0).toFixed(2), +(bCur.units||0).toFixed(0),
+      Math.round(bCur.stores||0), +(bCur.price||0).toFixed(2),
+      +(bCur.vel||0).toFixed(3),
+      +(bCur.acv||0).toFixed(2), Math.round(bCur.dp||0),
+      +(bCur.oos||0).toFixed(2),
+      +(bPrior?.rev||0).toFixed(2), +(bPrior?.units||0).toFixed(0),
+      +(bPrior?.vel||0).toFixed(3),
+      bRevYoy, bVelYoy,
+      bPromo.cnt||0, bPromo.lift?+(bPromo.lift).toFixed(2):null,
+      bPromo.roi?+(bPromo.roi).toFixed(3):null,
+      bPromo.spend?+(bPromo.spend).toFixed(2):null,
+      (bCur.oos||0) > 5 ? 1 : 0,
+      bVelYoy === null ? 'flat' : bVelYoy > 2 ? 'up' : bVelYoy < -2 ? 'down' : 'flat'
+    );
+    metricRows++;
+  }
+
+  // ── GRAIN: sku ──────────────────────────────────────────────────────────
+  const skus = db.prepare(`SELECT DISTINCT sku_id, sku_description FROM sales_kpi_weekly WHERE retailer_name='Walmart'`).all();
+  for (const { sku_id, sku_description } of skus) {
+    const brand_name = db.prepare(`SELECT DISTINCT brand_name FROM sales_kpi_weekly WHERE sku_id=? LIMIT 1`).get(sku_id)?.brand_name;
+    const sCur = db.prepare(`
+      SELECT SUM(dollar_sales) rev, SUM(unit_sales) units,
+             AVG(velocity_per_store) vel, AVG(avg_selling_price) price,
+             AVG(num_stores_selling) stores, AVG(acv_distribution_pct) acv,
+             AVG(num_stores_selling) dp, AVG(oos_rate_pct) oos
+      FROM sales_kpi_weekly
+      WHERE week_ending_date BETWEEN ? AND ?
+        AND retailer_name='Walmart' AND sku_id=?
+    `).get(dates.start, dates.end, sku_id);
+
+    const sPrior = db.prepare(`
+      SELECT SUM(dollar_sales) rev, SUM(unit_sales) units, AVG(velocity_per_store) vel
+      FROM sales_kpi_weekly
+      WHERE week_ending_date BETWEEN ? AND ?
+        AND retailer_name='Walmart' AND sku_id=?
+    `).get(prior.start, prior.end, sku_id);
+
+    const sPromo = db.prepare(`
+      SELECT COUNT(*) cnt, AVG(promo_lift_pct) lift, AVG(promo_roi) roi, SUM(trade_spend_dollars) spend
+      FROM promo_calendar
+      WHERE retailer_name='Walmart' AND sku_id=?
+        AND promo_start_date BETWEEN ? AND ?
+    `).get(sku_id, dates.start, dates.end);
+
+    const sRevYoy = sPrior?.rev ? +((sCur.rev - sPrior.rev) / sPrior.rev * 100).toFixed(2) : null;
+    const sVelYoy = sPrior?.vel ? +((sCur.vel - sPrior.vel) / sPrior.vel * 100).toFixed(2) : null;
+
+    insertMetric.run(
+      now, period.label, dates.start, dates.end, numWeeks,
+      'sku', 'Walmart', brand_name||null, sku_id, sku_description, null,
+      +(sCur.rev||0).toFixed(2), +(sCur.units||0).toFixed(0),
+      Math.round(sCur.stores||0), +(sCur.price||0).toFixed(2),
+      +(sCur.vel||0).toFixed(3),
+      +(sCur.acv||0).toFixed(2), Math.round(sCur.dp||0),
+      +(sCur.oos||0).toFixed(2),
+      +(sPrior?.rev||0).toFixed(2), +(sPrior?.units||0).toFixed(0),
+      +(sPrior?.vel||0).toFixed(3),
+      sRevYoy, sVelYoy,
+      sPromo.cnt||0, sPromo.lift?+(sPromo.lift).toFixed(2):null,
+      sPromo.roi?+(sPromo.roi).toFixed(3):null,
+      sPromo.spend?+(sPromo.spend).toFixed(2):null,
+      (sCur.oos||0) > 5 ? 1 : 0,
+      sVelYoy === null ? 'flat' : sVelYoy > 2 ? 'up' : sVelYoy < -2 ? 'down' : 'flat'
+    );
+    metricRows++;
+  }
+}
+
+console.log(`  ✅ ${metricRows} metric store rows pre-computed`);
+
 console.log('\n=== Calibration check ===');
 const velCheck = db.prepare(`
   SELECT brand_name,
