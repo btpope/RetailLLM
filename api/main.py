@@ -119,11 +119,16 @@ def chat(req: ChatRequest, db: Session = Depends(get_db)):
         _agent_sessions[session_key] = TestGPTAgent(session=db, user_context=user_ctx)
 
     agent = _agent_sessions[session_key]
+    # Always refresh the DB session — FastAPI creates a new one per request
+    # and the cached agent holds a stale session from the prior request
+    agent.session = db
 
     try:
+        import traceback
         response = agent.chat(req.message)
     except Exception as e:
-        # TODO: Log full traceback; return structured error
+        # Log full traceback for debugging
+        print(f"[ERROR] Agent error for session {session_key}:\n{traceback.format_exc()}")
         raise HTTPException(status_code=500, detail=f"Agent error: {str(e)}")
 
     return ChatResponse(
