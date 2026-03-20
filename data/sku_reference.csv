@@ -1,31 +1,31 @@
-sku_id,wmt_item_number,sku_description,upc,brand_name,category,sub_category
-SKU-A01,003825541,Apex Original Sea Salt Thin Crisps 4oz,0-72820-00101-4,Brand A,Snacks,Salty Snacks
-SKU-A02,003825542,Apex Bold BBQ Kettle Chips 8oz,0-72820-00102-1,Brand A,Snacks,Salty Snacks
-SKU-A03,003825543,Apex Lite Veggie Straws 12oz,0-72820-00103-8,Brand A,Snacks,Salty Snacks
-SKU-A04,003825544,Apex Premium Aged Cheddar Puffs 16oz,0-72820-00104-5,Brand A,Snacks,Salty Snacks
-SKU-A05,003825545,Apex Classic White Cheddar Popcorn 24oz,0-72820-00105-2,Brand A,Snacks,Salty Snacks
-SKU-A06,003825546,Apex Pro Protein Pretzels 32oz,0-72820-00106-9,Brand A,Snacks,Salty Snacks
-SKU-A07,003825547,Apex Max Variety Pack 6ct,0-72820-00107-6,Brand A,Snacks,Salty Snacks
-SKU-A08,003825548,Apex Pure Unsalted Rice Cakes 12pk,0-72820-00108-3,Brand A,Snacks,Salty Snacks
-SKU-A09,003825549,Apex Value Mix Party Pack 36oz,0-72820-00109-0,Brand A,Snacks,Salty Snacks
-SKU-A10,003825550,Apex XL Family Size Tortilla Chips 48oz,0-72820-00110-6,Brand A,Snacks,Salty Snacks
-SKU-B01,005519301,Bolt Original Energy Drink 12oz Single,0-61126-00201-3,Brand B,Beverages,Energy Drinks
-SKU-B02,005519302,Bolt Zero Sugar Energy 16oz Can,0-61126-00202-0,Brand B,Beverages,Energy Drinks
-SKU-B03,005519303,Bolt Citrus Burst Energy 12oz Single,0-61126-00203-7,Brand B,Beverages,Energy Drinks
-SKU-B04,005519304,Bolt Blue Raspberry Energy 16oz Can,0-61126-00204-4,Brand B,Beverages,Energy Drinks
-SKU-B05,005519305,Bolt Classic Energy Blend 24oz,0-61126-00205-1,Brand B,Beverages,Energy Drinks
-SKU-B06,005519306,Bolt Pro Pre-Workout Energy 32oz,0-61126-00206-8,Brand B,Beverages,Energy Drinks
-SKU-B07,005519307,Bolt Max Energy Variety 6pk 12oz,0-61126-00207-5,Brand B,Beverages,Energy Drinks
-SKU-B08,005519308,Bolt Pure Sugar-Free Energy 12pk 12oz,0-61126-00208-2,Brand B,Beverages,Energy Drinks
-SKU-B09,005519309,Bolt Value Energy Multipack 18pk,0-61126-00209-9,Brand B,Beverages,Energy Drinks
-SKU-B10,005519310,Bolt XL Bulk Energy Can 128oz,0-61126-00210-5,Brand B,Beverages,Energy Drinks
-SKU-C01,007234101,Silke Moisturizing Shampoo 8oz,0-85931-00301-2,Brand C,Personal Care,Hair Care
-SKU-C02,007234102,Silke Volumizing Conditioner 12oz,0-85931-00302-9,Brand C,Personal Care,Hair Care
-SKU-C03,007234103,Silke Lite Daily Shampoo 12oz,0-85931-00303-6,Brand C,Personal Care,Hair Care
-SKU-C04,007234104,Silke Premium Repair Mask 16oz,0-85931-00304-3,Brand C,Personal Care,Hair Care
-SKU-C05,007234105,Silke Classic 2-in-1 Shampoo+Cond 24oz,0-85931-00305-0,Brand C,Personal Care,Hair Care
-SKU-C06,007234106,Silke Pro Color-Protect Shampoo 32oz,0-85931-00306-7,Brand C,Personal Care,Hair Care
-SKU-C07,007234107,Silke Max Salon Kit Shampoo+Cond 6pk,0-85931-00307-4,Brand C,Personal Care,Hair Care
-SKU-C08,007234108,Silke Pure Sulfate-Free Shampoo 12pk Travel,0-85931-00308-1,Brand C,Personal Care,Hair Care
-SKU-C09,007234109,Silke Value Bundle Shampoo+Cond+Mask,0-85931-00309-8,Brand C,Personal Care,Hair Care
-SKU-C10,007234110,Silke XL Family Shampoo 48oz,0-85931-00310-4,Brand C,Personal Care,Hair Care
+sku_id,wmt_item_number,sku_description,upc,brand_name,category,sub_category,is_hero,is_treatment
+SKU-A01,003825541,Apex Original Sea Salt Thin Crisps 4oz,0-72820-00101-4,Apex,Snacks,Salty Snacks,Y,N
+SKU-A02,003825542,Apex Bold BBQ Kettle Chips 8oz,0-72820-00102-1,Apex,Snacks,Salty Snacks,Y,N
+SKU-A03,003825543,Apex Lite Veggie Straws 12oz,0-72820-00103-8,Apex,Snacks,Salty Snacks,Y,N
+SKU-A04,003825544,Apex Premium Aged Cheddar Puffs 16oz,0-72820-00104-5,Apex,Snacks,Salty Snacks,N,N
+SKU-A05,003825545,Apex Classic White Cheddar Popcorn 24oz,0-72820-00105-2,Apex,Snacks,Salty Snacks,N,N
+SKU-A06,003825546,Apex Pro Protein Pretzels 32oz,0-72820-00106-9,Apex,Snacks,Salty Snacks,N,N
+SKU-A07,003825547,Apex Max Variety Pack 6ct,0-72820-00107-6,Apex,Snacks,Salty Snacks,N,N
+SKU-A08,003825548,Apex Pure Unsalted Rice Cakes 12pk,0-72820-00108-3,Apex,Snacks,Salty Snacks,N,N
+SKU-A09,003825549,Apex Value Mix Party Pack 36oz,0-72820-00109-0,Apex,Snacks,Salty Snacks,N,N
+SKU-A10,003825550,Apex XL Family Size Tortilla Chips 48oz,0-72820-00110-6,Apex,Snacks,Salty Snacks,N,N
+SKU-B01,005519301,Bolt Original Energy Drink 12oz Single,0-61126-00201-3,Bolt,Beverages,Energy Drinks,Y,N
+SKU-B02,005519302,Bolt Zero Sugar Energy 16oz Can,0-61126-00202-0,Bolt,Beverages,Energy Drinks,Y,N
+SKU-B03,005519303,Bolt Citrus Burst Energy 12oz Single,0-61126-00203-7,Bolt,Beverages,Energy Drinks,Y,N
+SKU-B04,005519304,Bolt Blue Raspberry Energy 16oz Can,0-61126-00204-4,Bolt,Beverages,Energy Drinks,N,N
+SKU-B05,005519305,Bolt Classic Energy Blend 24oz,0-61126-00205-1,Bolt,Beverages,Energy Drinks,N,N
+SKU-B06,005519306,Bolt Pro Pre-Workout Energy 32oz,0-61126-00206-8,Bolt,Beverages,Energy Drinks,N,N
+SKU-B07,005519307,Bolt Max Energy Variety 6pk 12oz,0-61126-00207-5,Bolt,Beverages,Energy Drinks,N,N
+SKU-B08,005519308,Bolt Pure Sugar-Free Energy 12pk 12oz,0-61126-00208-2,Bolt,Beverages,Energy Drinks,N,N
+SKU-B09,005519309,Bolt Value Energy Multipack 18pk,0-61126-00209-9,Bolt,Beverages,Energy Drinks,N,N
+SKU-B10,005519310,Bolt XL Bulk Energy Can 128oz,0-61126-00210-5,Bolt,Beverages,Energy Drinks,N,N
+SKU-C01,007234101,Silke Moisturizing Shampoo 8oz,0-85931-00301-2,Silke,Personal Care,Hair Care,Y,N
+SKU-C02,007234102,Silke Volumizing Conditioner 12oz,0-85931-00302-9,Silke,Personal Care,Hair Care,Y,N
+SKU-C03,007234103,Silke Lite Daily Shampoo 12oz,0-85931-00303-6,Silke,Personal Care,Hair Care,Y,N
+SKU-C04,007234104,Silke Premium Repair Mask 16oz,0-85931-00304-3,Silke,Personal Care,Hair Care,N,Y
+SKU-C05,007234105,Silke Classic 2-in-1 Shampoo+Cond 24oz,0-85931-00305-0,Silke,Personal Care,Hair Care,N,N
+SKU-C06,007234106,Silke Pro Color-Protect Shampoo 32oz,0-85931-00306-7,Silke,Personal Care,Hair Care,N,N
+SKU-C07,007234107,Silke Max Salon Kit Shampoo+Cond 6pk,0-85931-00307-4,Silke,Personal Care,Hair Care,N,Y
+SKU-C08,007234108,Silke Pure Sulfate-Free Shampoo 12pk Travel,0-85931-00308-1,Silke,Personal Care,Hair Care,N,N
+SKU-C09,007234109,Silke Value Bundle Shampoo+Cond+Mask,0-85931-00309-8,Silke,Personal Care,Hair Care,N,Y
+SKU-C10,007234110,Silke XL Family Shampoo 48oz,0-85931-00310-4,Silke,Personal Care,Hair Care,N,N
