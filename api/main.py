@@ -161,6 +161,56 @@ def clear_session(session_id: str):
     return {"cleared": True}
 
 
+@app.get("/users")
+def list_users(db: Session = Depends(get_db)):
+    """List all users in the prototype DB (for testing / demo setup)."""
+    from models.schema import UserPreferences
+    users = db.query(UserPreferences).all()
+    return [
+        {
+            "user_id":    u.user_id,
+            "user_name":  u.user_name,
+            "user_role":  u.user_role,
+            "retailer_scope": u.retailer_scope,
+            "brand_scope": u.brand_scope,
+            "default_period": u.preferred_time_period,
+        }
+        for u in users
+    ]
+
+
+@app.get("/summary/{user_id}")
+def quick_summary(user_id: str, period_weeks: int = 4, db: Session = Depends(get_db)):
+    """
+    Quick KPI summary without going through the agent loop.
+    Useful for testing data layer independently of Claude.
+    GET /summary/USR-001?period_weeks=4
+    """
+    from tools.kpi_tools import get_business_summary, search_memory
+    from models.queries import get_latest_date
+
+    mem   = search_memory(db, user_id=user_id)
+    prefs = mem.get("preferences") or {}
+
+    retailers = prefs.get("retailer_scope", [])
+    regions   = prefs.get("region_scope",   [])
+    brand     = (prefs.get("brand_scope") or [None])[0] if prefs.get("brand_scope") else None
+    metrics   = prefs.get("priority_metrics", ["Revenue", "Velocity", "OOS Rate"])
+
+    summary = get_business_summary(
+        db,
+        priority_metrics=metrics,
+        retailers=retailers if retailers else None,
+        regions=regions     if regions   else None,
+        brand_name=brand,
+        period_weeks=period_weeks,
+    )
+    summary["user_id"]    = user_id
+    summary["user_name"]  = prefs.get("user_name", user_id)
+    summary["synthetic"]  = SYNTHETIC_DATA_MODE
+    return summary
+
+
 # ─── Helpers ──────────────────────────────────────────────────────────────────
 
 def _resolve_user_context(db: Session, user_id: str) -> dict:
@@ -168,15 +218,30 @@ def _resolve_user_context(db: Session, user_id: str) -> dict:
     Load user preferences from DB and return as user_context dict for the agent.
     Falls back to sensible defaults if user not found.
     """
-    mem = search_memory(db, user_id=user_id)
+    mem   = search_memory(db, user_id=user_id)
     prefs = mem.get("preferences") or {}
+
+    # priority_metrics comes back as a list; system prompt wants CSV string
+    pm = prefs.get("priority_metrics", ["Revenue", "Velocity", "OOS Rate"])
+    priority_metrics_str = ", ".join(pm) if isinstance(pm, list) else pm
+
+    retailer_scope = prefs.get("retailer_scope", [])
+    retailer_str   = ", ".join(retailer_scope) if isinstance(retailer_scope, list) else retailer_scope or "All retailers"
+
+    region_scope = prefs.get("region_scope", [])
+    region_str   = ", ".join(region_scope) if isinstance(region_scope, list) else region_scope or "National"
+
     return {
         "user_id":          user_id,
         "user_name":        prefs.get("user_name", user_id),
         "user_role":        prefs.get("role", "Brand Manager"),
-        "priority_metrics": prefs.get("priority_metrics", "Revenue, Velocity, OOS Rate"),
-        "retailer_scope":   prefs.get("retailer_scope", ""),
-        "region_scope":     prefs.get("region_scope", ""),
+        "priority_metrics": priority_metrics_str,
+        "retailer_scope":   retailer_str,
+        "region_scope":     region_str,
         "default_period":   prefs.get("default_period", "L4W"),
         "narrative_mode":   prefs.get("narrative_mode", "Merchant"),
+        # keep raw lists for agent use
+        "_retailer_list":   retailer_scope if isinstance(retailer_scope, list) else [],
+        "_region_list":     region_scope   if isinstance(region_scope,   list) else [],
+        "_brand_list":      prefs.get("brand_scope", []),
     }

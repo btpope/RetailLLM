@@ -24,6 +24,7 @@ from tools.execute_sql import execute_sql, TOOL_DEFINITION as SQL_TOOL
 from tools.generate_vega_chart import generate_vega_chart, TOOL_DEFINITION as CHART_TOOL
 from tools.kpi_tools import (
     get_kpi_card, KPI_CARD_TOOL,
+    get_business_summary, BUSINESS_SUMMARY_TOOL,
     get_promo_calendar, PROMO_CALENDAR_TOOL,
     get_retailer_account, RETAILER_ACCOUNT_TOOL,
     search_memory, SEARCH_MEMORY_TOOL,
@@ -35,14 +36,15 @@ from tools.workflow_tools import (
 
 # All tools exposed to Claude — add generate_infographic_image here in Step 3
 ALL_TOOLS = [
-    SQL_TOOL,
-    CHART_TOOL,
-    KPI_CARD_TOOL,
-    PROMO_CALENDAR_TOOL,
-    RETAILER_ACCOUNT_TOOL,
-    SEARCH_MEMORY_TOOL,
-    FLAG_ISSUE_TOOL,
-    SEND_FOR_APPROVAL_TOOL,
+    SEARCH_MEMORY_TOOL,        # always first — load prefs before anything else
+    BUSINESS_SUMMARY_TOOL,     # Req #1: "How is my business?"
+    KPI_CARD_TOOL,             # Req #2/#4: single-metric drilldown
+    SQL_TOOL,                  # Req #10: flexible query execution
+    CHART_TOOL,                # Req #3: visualization
+    PROMO_CALENDAR_TOOL,       # promo analysis
+    RETAILER_ACCOUNT_TOOL,     # JBP / account scorecard
+    FLAG_ISSUE_TOOL,           # Req #5: issue flagging
+    SEND_FOR_APPROVAL_TOOL,    # Req #9: HITL gate
 ]
 
 MAX_TOOL_ITERATIONS = 10  # Safety cap on agentic loops
@@ -199,6 +201,8 @@ class RetailGPTAgent:
                 return generate_vega_chart(**tool_input)
             elif tool_name == "get_kpi_card":
                 return get_kpi_card(self.session, tool_input["metric"], tool_input.get("filters"))
+            elif tool_name == "get_business_summary":
+                return get_business_summary(self.session, **tool_input)
             elif tool_name == "get_promo_calendar":
                 return get_promo_calendar(self.session, **tool_input)
             elif tool_name == "get_retailer_account":

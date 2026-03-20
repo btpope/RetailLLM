@@ -1,92 +1,125 @@
-# RetailGPT — Prototype Scaffold
+# RetailGPT
 
-AI analyst agent for CPG retail analytics, built on **Anthropic Claude** as primary reasoning model.
+AI analyst agent for CPG retail analytics — powered by Claude (Anthropic).
 
-**Status:** Step 1 skeleton — interfaces and stubs, not full implementations.
-
----
-
-## Architecture
-
-```
-RetailLLM/
-├── api/
-│   └── main.py              ← FastAPI endpoint (POST /chat, POST /approve, GET /issues)
-├── agents/
-│   └── retailgpt_agent.py   ← Main orchestration loop (tool use + HITL)
-├── tools/
-│   ├── execute_sql.py        ← SQL query tool (read-only enforced)
-│   ├── generate_vega_chart.py ← Vega-Lite chart spec generator
-│   ├── kpi_tools.py          ← get_kpi_card, get_promo_calendar, get_retailer_account, search_memory
-│   └── workflow_tools.py     ← flag_issue, send_for_approval, generate_infographic_image (P2)
-├── models/
-│   ├── schema.py             ← SQLAlchemy ORM (5 tables from Synthetic Data Schema)
-│   └── queries.py            ← Pre-built read-only query library
-├── prompts/
-│   └── retailgpt_system_prompt.md ← Full Claude system prompt
-├── config/
-│   └── settings.py           ← Model/provider/DB config (swap model = change 1 line)
-└── README.md
-```
-
----
-
-## Implementation Steps
-
-| Step | Requirements | Status |
-|------|-------------|--------|
-| **Step 1** — Core analytics: conversation, KPI narratives, charts | #1, #2, #3, #4, #10, #11 | 🔧 Skeleton |
-| **Step 2** — Reactive agents, issue workflow, HITL, user priorities | #5, #6, #7, #9 | 📋 Planned |
-| **Step 3** — Infographic generation via Gemini (optional) | #8 | 📋 P2 |
+**Status:** Step 1 complete — end-to-end `/chat` working with real SQLite data.
 
 ---
 
 ## Quickstart
 
 ```bash
-# Install dependencies
-pip install anthropic fastapi uvicorn sqlalchemy
+# 1. Install deps
+pip install -r requirements.txt
 
-# Set environment variables
-export ANTHROPIC_API_KEY=your_key
-export SYNTHETIC_DATA_MODE=true  # Uses synthetic data; labels all outputs [SYNTHETIC DATA — DEMO ONLY]
+# 2. Seed the database
+node scripts/generate_synthetic_data.js
+# → creates retailgpt_prototype.db with 117,600 rows of Walmart/CPG data
 
-# Create DB tables
-python models/schema.py
+# 3. Configure
+cp .env.example .env
+# edit .env → add your ANTHROPIC_API_KEY
 
-# Run the API
+# 4. Run
 uvicorn api.main:app --reload --port 8000
+```
 
-# Test
+---
+
+## API Endpoints
+
+| Method | Path | Description |
+|--------|------|-------------|
+| `GET`  | `/health` | Status check |
+| `GET`  | `/users` | List test users |
+| `GET`  | `/summary/{user_id}` | Quick KPI summary (no Claude, data layer only) |
+| `POST` | `/chat` | Main analyst chat (Claude tool loop) |
+| `POST` | `/approve` | HITL approval gate |
+| `GET`  | `/issues` | Open alert queue for a user |
+| `DELETE` | `/sessions/{id}` | Clear conversation history |
+
+---
+
+## Test Calls
+
+```bash
+# Check data layer (no API key needed)
+curl http://localhost:8000/users
+curl http://localhost:8000/summary/USR-001
+curl http://localhost:8000/summary/USR-002?period_weeks=13
+
+# Full Claude agent call
 curl -X POST http://localhost:8000/chat \
   -H 'Content-Type: application/json' \
   -d '{"user_id": "USR-001", "message": "How is my business?"}'
+
+# Single metric drilldown
+curl -X POST http://localhost:8000/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"user_id": "USR-001", "message": "What is OOS rate at Walmart for Apex this month?", "session_id": "USR-001"}'
+
+# Promo analysis
+curl -X POST http://localhost:8000/chat \
+  -H 'Content-Type: application/json' \
+  -d '{"user_id": "USR-002", "message": "Show me Walmart promo ROI for the last year"}'
 ```
 
 ---
 
-## Switching the Base Model
+## Users (prototype)
 
-Everything is model-agnostic. To switch from Claude to GPT-4 or Gemini:
+| ID | Name | Role | Scope |
+|----|------|------|-------|
+| USR-001 | Sarah Johnson | Brand Manager | Walmart/Target/Kroger — Apex only |
+| USR-002 | Michael Chen | Sales Director | Walmart/Costco — Southeast+Midwest |
+| USR-003 | Rachel Thompson | Category Manager | Kroger/Albertsons/CVS — Bolt+Silke |
+| USR-004 | James Williams | Retail Ops VP | All retailers — all brands |
+| USR-005 | Emily Davis | Analyst | All retailers — Apex only |
 
-```python
-# config/settings.py
-ANALYST_MODEL    = "gpt-4o"
-ANALYST_PROVIDER = "openai"
+---
+
+## Architecture
+
+```
+POST /chat
+  → _resolve_user_context (load prefs from user_preferences)
+  → RetailGPTAgent.chat()
+      → Claude (claude-sonnet-4-6) tool loop
+          → search_memory        load user prefs
+          → get_business_summary L4W KPI cards, ranked by change
+          → get_kpi_card         single-metric current vs. prior
+          → execute_sql          flexible read-only queries
+          → generate_vega_chart  Vega-Lite spec for frontend
+          → get_promo_calendar   promo events + ROI
+          → get_retailer_account quarterly scorecard (JBP)
+          → flag_issue           surface anomaly for review
+          → send_for_approval    HITL gate (halts loop)
+  → AgentResponse { narrative, charts[], issues[], pending_approval }
 ```
 
-The agent graph does not need to change. Only the client initialization in `retailgpt_agent.py` needs a provider factory (TODO item).
+### Data
+
+- **DB:** SQLite `retailgpt_prototype.db` (117,600 rows, Jan 2023 – Feb 2025)
+- **Brands:** Apex (Snacks), Bolt (Energy Drinks), Silke (Hair Care)
+- **Retailers:** Walmart, Target, Kroger, Costco, Amazon, CVS, Walgreens, Albertsons
+- **Calibration:** Velocity/price/promo lift/ROI ranges from Brad Pope / Perplexity spec 2026-03-20
+
+### Production path
+
+- Swap `DB_URL` for Databricks SQL connector
+- Set `ANALYST_PROVIDER=openai` + `OPENAI_API_KEY=dapi...` for Azure AI Foundry (Claude via Databricks AI Gateway)
+- Port API to C#/.NET to match Engine team stack
 
 ---
 
-## Key Design Decisions
+## Step Roadmap
 
-- **Read-only enforced**: `_assert_readonly()` blocks any SQL mutation before execution
-- **HITL mandatory**: `send_for_approval` always halts the tool loop before any outbound action
-- **Model-agnostic**: provider/model in `config/settings.py`; agent graph unchanged
-- **Synthetic data mode**: `SYNTHETIC_DATA_MODE=true` labels all outputs; realistic CPG ranges
-- **Per-user context**: user preferences loaded from `user_preferences` table shape every default summary
+| Step | Requirements | Status |
+|------|-------------|--------|
+| Step 1 | #1,#2,#3,#4,#10,#11 — core analytics + tool loop | ✅ Done |
+| Step 2 | #5,#6,#7,#9 — reactive agents, issue workflow, per-user priorities | 🔲 Next |
+| Step 3 | #8 — Gemini infographic image generation | 🔲 P2 |
 
 ---
 
-## Open Questions (See OPEN_QUESTIONS.md)
+*[SYNTHETIC DATA — DEMO ONLY]*
