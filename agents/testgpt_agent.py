@@ -109,6 +109,50 @@ class TestGPTAgent:
           - issues: list of flagged issues
           - pending_approval: HITL approval request (if any — pauses further action)
         """
+        # ── Speed optimisation: pre-fetch & inject business context ─────────
+        # Eliminates 2 Claude API round-trips (search_memory + get_business_summary)
+        # by injecting a pre-computed data brief before the first LLM call.
+        try:
+            from tools.kpi_tools import get_business_summary
+            brief = get_business_summary(
+                session=self.session,
+                user_id=self.user_context.get("user_id", ""),
+                retailer_scope=self.user_context.get("retailer_scope", ""),
+                brand_scope=self.user_context.get("brand_scope", ""),
+                default_period=self.user_context.get("default_period", "L4W"),
+            )
+            if brief and not brief.get("error"):
+                kpi_lines = []
+                for card in brief.get("kpi_cards", []):
+                    delta = f"{card['delta_pct']:+.1f}%" if card.get("delta_pct") is not None else "n/a"
+                    kpi_lines.append(
+                        f"  • {card['metric']}: {card.get('unit','')}{card.get('current_value','n/a')} "
+                        f"({delta} vs prior {card.get('period_label','')}) [{card.get('trend','flat').upper()}]"
+                    )
+                alerts = brief.get("open_alerts", [])
+                alert_lines = [f"  • [{a.get('severity','?')}] {a.get('alert_message','')}" for a in alerts[:3]]
+                brief_text = (
+                    f"[PRE-FETCHED DATA BRIEF — use this directly, do not call search_memory or get_business_summary]\n"
+                    f"User: {self.user_context.get('user_name')} | Role: {self.user_context.get('user_role')} | "
+                    f"Brand: {self.user_context.get('brand_scope') or 'All'} | "
+                    f"Retailer: {self.user_context.get('retailer_scope')} | "
+                    f"Period: {brief.get('period_label')} ending {brief.get('anchor_date')}\n\n"
+                    f"KPI Summary:\n" + "\n".join(kpi_lines) + "\n\n" +
+                    (f"Open Alerts:\n" + "\n".join(alert_lines) if alert_lines else "Open Alerts: None") +
+                    "\n\nYou already have this data. Answer the user's question using it. "
+                    "Only call tools if you need data NOT shown above (e.g. specific SKU drill-down, promo details, chart generation)."
+                )
+                self.conversation_history.append({
+                    "role": "user",
+                    "content": brief_text,
+                })
+                self.conversation_history.append({
+                    "role": "assistant",
+                    "content": "Understood. I have the pre-fetched business data and will use it directly.",
+                })
+        except Exception:
+            pass  # pre-fetch failure is non-fatal; Claude will call tools normally
+
         # Append user message to history
         self.conversation_history.append({"role": "user", "content": user_message})
 

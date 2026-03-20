@@ -120,16 +120,21 @@ def _build_spec(chart_type, data, x_field, y_field, color_field, title, x_label,
 
     elif chart_type in ("bar", "horizontal_bar"):
         # Category comparison
+        # Auto-promote to horizontal when labels will be long (SKU names, retailer+SKU combos, >5 items)
         x_axis["type"] = "nominal"
-        encoding = {"y": y_axis}
-        if chart_type == "horizontal_bar":
+        avg_label_len = sum(len(str(row.get(x_field, ""))) for row in data) / max(len(data), 1)
+        use_horizontal = chart_type == "horizontal_bar" or avg_label_len > 12 or len(data) > 6
+        encoding = {}
+        if use_horizontal:
             encoding["y"] = {**x_axis, "sort": "-x"}
             encoding["x"] = y_axis
         else:
             encoding["x"] = x_axis
+            encoding["y"] = y_axis
         if color_field:
             encoding["color"] = {"field": color_field, "type": "nominal"}
-        base.update({"mark": "bar", "encoding": encoding})
+        base["height"] = max(300, len(data) * 32) if use_horizontal else 300
+        base.update({"mark": {"type": "bar", "cornerRadiusEnd": 3}, "encoding": encoding})
 
     elif chart_type == "scatter":
         # Correlation

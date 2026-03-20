@@ -110,7 +110,8 @@ function sampleROI(brandKey) {
 }
 
 // ─── Reference data ───────────────────────────────────────────────────────────
-const RETAILERS = ['Walmart','Target','Kroger','Costco','Amazon','CVS','Walgreens','Albertsons'];
+// Walmart-only dataset — this tool is built for a customer team calling on one retailer
+const RETAILERS = ['Walmart'];
 const REGIONS   = ['Southeast','Northeast','Midwest','West','South Central'];
 
 const BRANDS = {
@@ -244,7 +245,7 @@ for (const skuId of Object.keys(SKU_MASTER)) {
 for (const year of [2023, 2024, 2025]) {
   for (const [brandName] of Object.entries(BRANDS)) {
     const heroSkus = Object.keys(SKU_MASTER).filter(k => SKU_MASTER[k].brand === brandName && SKU_MASTER[k].isHero);
-    for (const retailer of ['Walmart', 'Target', 'Kroger', 'Albertsons']) {
+    for (const retailer of ['Walmart']) {
       const nPromos = randInt(5, 8);
       const usedStarts = [];
       for (let attempt = 0; attempt < nPromos * 6 && usedStarts.length < nPromos; attempt++) {
@@ -439,7 +440,7 @@ function generateAlerts() {
   for (let i = 0; i < 120; i++) {
     const { type, sev, tmpl } = randChoice(types);
     const skuId    = randChoice(allSkuIds);
-    const retailer = randChoice(RETAILERS.slice(0, 6));
+    const retailer = 'Walmart';
     const alertDate = randChoice(eligibleWeeks);
     const threshold = thresholds[type];
     const actual    = type === 'PROMO_ROI_MISS'
@@ -470,11 +471,11 @@ function generateAlerts() {
 
 // ─── Users ────────────────────────────────────────────────────────────────────
 const USERS = [
-  { user_id:'USR-001', user_name:'Sarah Johnson',  user_email:'sarah.johnson@company.com',  user_role:'Brand Manager',   default_narrative_mode:'Merchant',  priority_metrics:'Revenue,Velocity,OOS Rate',              retailer_scope:'Walmart,Target,Kroger', region_scope:'',                   brand_scope:'Apex',        excluded_regions:'', oos_alert_threshold_pct:5.00, velocity_decline_threshold_pct:10.00, promo_roi_floor:0.80, preferred_time_period:'L4W',  email_report_cadence:'Weekly' },
-  { user_id:'USR-002', user_name:'Michael Chen',   user_email:'michael.chen@company.com',   user_role:'Sales Director',  default_narrative_mode:'Executive', priority_metrics:'Revenue,Promo Lift,Distribution Points', retailer_scope:'Walmart,Costco',        region_scope:'Southeast,Midwest',  brand_scope:'',            excluded_regions:'', oos_alert_threshold_pct:7.00, velocity_decline_threshold_pct:15.00, promo_roi_floor:1.00, preferred_time_period:'L13W', email_report_cadence:'Weekly' },
-  { user_id:'USR-003', user_name:'Rachel Thompson',user_email:'rachel.thompson@company.com',user_role:'Category Manager',default_narrative_mode:'Analyst',   priority_metrics:'Velocity,OOS Rate,ACV,Promo ROI',        retailer_scope:'Kroger,Albertsons,CVS', region_scope:'West,Northeast',     brand_scope:'Bolt,Silke',  excluded_regions:'', oos_alert_threshold_pct:4.00, velocity_decline_threshold_pct:8.00,  promo_roi_floor:0.90, preferred_time_period:'L4W',  email_report_cadence:'Daily'  },
-  { user_id:'USR-004', user_name:'James Williams', user_email:'james.williams@company.com', user_role:'Retail Ops VP',   default_narrative_mode:'Executive', priority_metrics:'Revenue,OOS Rate,OTIF',                  retailer_scope:'',                      region_scope:'',                   brand_scope:'',            excluded_regions:'Puerto Rico', oos_alert_threshold_pct:6.00, velocity_decline_threshold_pct:12.00, promo_roi_floor:0.75, preferred_time_period:'L52W', email_report_cadence:'Weekly' },
-  { user_id:'USR-005', user_name:'Emily Davis',    user_email:'emily.davis@company.com',    user_role:'Analyst',         default_narrative_mode:'Analyst',   priority_metrics:'Velocity,YoY Growth,Promo Lift,Cannibalization', retailer_scope:'',                  region_scope:'',                   brand_scope:'Apex',        excluded_regions:'', oos_alert_threshold_pct:3.00, velocity_decline_threshold_pct:5.00,  promo_roi_floor:1.20, preferred_time_period:'L13W', email_report_cadence:'None'   },
+  { user_id:'USR-001', user_name:'Sarah Johnson',  user_email:'sarah.johnson@company.com',  user_role:'Brand Manager',      default_narrative_mode:'Merchant',  priority_metrics:'Revenue,Velocity,OOS Rate',                      retailer_scope:'Walmart', region_scope:'', brand_scope:'Apex',     excluded_regions:'', oos_alert_threshold_pct:5.00, velocity_decline_threshold_pct:10.00, promo_roi_floor:0.80, preferred_time_period:'L4W',  email_report_cadence:'Weekly' },
+  { user_id:'USR-002', user_name:'Michael Chen',   user_email:'michael.chen@company.com',   user_role:'Sales Director',     default_narrative_mode:'Executive', priority_metrics:'Revenue,Promo Lift,Distribution Points',         retailer_scope:'Walmart', region_scope:'', brand_scope:'',         excluded_regions:'', oos_alert_threshold_pct:7.00, velocity_decline_threshold_pct:15.00, promo_roi_floor:1.00, preferred_time_period:'L13W', email_report_cadence:'Weekly' },
+  { user_id:'USR-003', user_name:'Rachel Thompson',user_email:'rachel.thompson@company.com',user_role:'Category Analyst',   default_narrative_mode:'Analyst',   priority_metrics:'Velocity,OOS Rate,ACV,Promo ROI',                retailer_scope:'Walmart', region_scope:'', brand_scope:'Bolt',     excluded_regions:'', oos_alert_threshold_pct:4.00, velocity_decline_threshold_pct:8.00,  promo_roi_floor:0.90, preferred_time_period:'L4W',  email_report_cadence:'Daily'  },
+  { user_id:'USR-004', user_name:'David Park',     user_email:'david.park@company.com',     user_role:'Account Manager',    default_narrative_mode:'Merchant',  priority_metrics:'Revenue,OOS Rate,Promo ROI',                     retailer_scope:'Walmart', region_scope:'', brand_scope:'Silke',    excluded_regions:'', oos_alert_threshold_pct:6.00, velocity_decline_threshold_pct:12.00, promo_roi_floor:0.75, preferred_time_period:'L4W',  email_report_cadence:'Weekly' },
+  { user_id:'USR-005', user_name:'Jennifer Walsh', user_email:'jennifer.walsh@company.com', user_role:'VP Sales',           default_narrative_mode:'Executive', priority_metrics:'Revenue,Velocity,Promo Lift,OOS Rate',           retailer_scope:'Walmart', region_scope:'', brand_scope:'',         excluded_regions:'', oos_alert_threshold_pct:5.00, velocity_decline_threshold_pct:10.00, promo_roi_floor:0.85, preferred_time_period:'YTD',  email_report_cadence:'Weekly' },
 ];
 
 // ─── Create DB + seed ─────────────────────────────────────────────────────────
